@@ -1,5 +1,7 @@
 # Electron Example
 
+Simple `Electron` + `React` + `Vite` boilerplate.
+
 # Repo File Structure
 
 <details>
@@ -21,5 +23,5 @@
 
   7 directories, 5 files
   ```
-  
+
 </details>

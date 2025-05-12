@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
+  },
+  "include": [
+    "electron/preload", "electron/main", 
+    "vite.config.ts", 
+    "tanstack.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}

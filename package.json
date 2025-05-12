@@ -1,8 +1,30 @@
 {
   "scripts": {
+    "packages:install": "npm install",
+    "packages:reinstall": "rm -rf node_modules package-lock.json && npm install",
+    "tanstackrouter:generate:routes": "npx @tanstack/router-cli ./src/routes -y",
+    "dev": "vite",
     "start": "electron ."
   },
+  "dependencies": {
+    "@tanstack/react-query": "^5.76.0",
+    "@tanstack/react-router": "^1.120.3",
+    "@vitejs/plugin-react": "^4.4.1",
+    "classnames": "^2.5.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
   "devDependencies": {
-    "electron": "^36.2.0"
+    "@types/react-dom": "^19.1.4",
+    "@types/react": "^19.1.4",
+    "@tanstack/router-devtools": "^1.120.3",
+    "@tanstack/react-router-devtools": "^1.120.3",
+    "@tanstack/react-query-devtools": "^5.76.0",
+    "@tanstack/router-cli": "^1.120.3",
+    "@tanstack/router-plugin": "^1.120.3",
+    "autoprefixer": "^10.4.21",
+    "electron": "^36.2.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1"
   }
 }
