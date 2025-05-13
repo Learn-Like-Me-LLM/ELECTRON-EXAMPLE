@@ -1,0 +1,75 @@
+# electron-builder.yml - Configuration file for building and packaging Electron applications
+# Main documentation: https://www.electron.build/configuration.html
+
+# Basic Application Information ###############################################
+# appId: Unique identifier for your app, typically in reverse domain notation
+appId: com.electronexample.app
+
+# productName: The name of your application as it will appear to users
+productName: ElectronExample
+
+# asar: Archives your app's source code into a single file for better performance and security
+# When true, your app's source code is packaged into an .asar archive, making it harder to access/modify
+asar: true
+
+# Version Configuration #######################################################
+# buildVersion: Specifies the build version format
+# ${version} is replaced with the version from package.json
+# This allows for non-semantic versioning formats if needed
+buildVersion: ${version}
+
+# Output Directory Configuration ##############################################
+# Specifies where the built applications will be saved
+# ${version} will be replaced with your app's version
+directories:
+  output: release/${version}
+
+# Files to Include in the Build ###############################################
+# List of files/directories to include in the final application package
+files:
+  - dist/      # Contains your built web application (React/Vue/etc.)
+  - dist-electron/  # Contains compiled Electron main and preload scripts
+
+# Compression Settings ########################################################
+# maximum: Uses highest compression level for better file size
+# Options: store, normal, maximum
+compression: maximum
+
+# macOS Build Configuration ###################################################
+mac:
+  target:
+    - target: dmg    # Creates a .dmg installer file
+      arch: arm64    # Builds for arm64 architecture
+  icon: build/icon.icns  # macOS app icon (.icns format required)
+  # artifactName defines the output filename pattern
+  # ${productName}: from above
+  # ${version}: from package.json
+  # ${arch}: architecture (x64, arm64, etc.)
+  # ${ext}: file extension (dmg, pkg, etc.)
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+# Windows Build Configuration #################################################
+win:
+  icon: build/icon.ico  # Windows app icon (.ico format required)
+  target:
+    - target: nsis      # Uses NSIS to create Windows installer
+      arch: x64         # Builds for 64-bit architecture
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+# NSIS (Windows Installer) Configuration ######################################
+nsis:
+  oneClick: false                           # If false, shows installation options dialog
+  perMachine: false                         # If true, installs for all users (requires admin)
+  allowToChangeInstallationDirectory: true  # Lets users choose install location
+  deleteAppDataOnUninstall: false          # If true, removes app data when uninstalling
+
+# Linux Build Configuration ###################################################
+# Uncomment and modify these settings to build for Linux
+# linux:
+#   target:
+#     - AppImage  # Creates AppImage format (runs on most Linux distributions)
+#     - deb       # Creates Debian package format
+#     - rpm       # Creates RPM package format
+#   artifactName: ${productName}-${version}-${arch}.${ext}
+
+  

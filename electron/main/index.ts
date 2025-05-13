@@ -18,14 +18,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // │ └── index.html    > Electron-Renderer
 //
 process.env.APP_ROOT = path.join(__dirname, '../..')
-
-export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
-export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
-export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
-
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
+process.env.DIST = path.join(process.env.APP_ROOT, 'dist')
+process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
   ? path.join(process.env.APP_ROOT, 'public')
-  : RENDERER_DIST
+  : process.env.DIST
 
 // Disable GPU Acceleration for Windows 7
 if (os.release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -39,8 +35,9 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 let win: BrowserWindow | null = null
+
+// Here's the preload
 const preload = path.join(__dirname, '../preload/index.mjs')
-const indexHtml = path.join(RENDERER_DIST, 'index.html')
 
 async function createWindow() {
   win = new BrowserWindow({
@@ -48,20 +45,10 @@ async function createWindow() {
     icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
     webPreferences: {
       preload,
-
-      // Consider using contextBridge.exposeInMainWorld
-      // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
-      // contextIsolation: false,
+      nodeIntegration: true,
+      contextIsolation: true,
     },
   })
-
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL)
-    // Open devTool if the app is not packaged
-    win.webContents.openDevTools()
-  } else {
-    win.loadFile(indexHtml)
-  }
 
   // Test actively push message to the Electron-Renderer
   win.webContents.on('did-finish-load', () => {
@@ -73,7 +60,14 @@ async function createWindow() {
     if (url.startsWith('https:')) shell.openExternal(url)
     return { action: 'deny' }
   })
-  // win.webContents.on('will-navigate', (event, url) => { }) #344
+
+  if (process.env.VITE_DEV_SERVER_URL) {
+    win.loadURL(process.env.VITE_DEV_SERVER_URL)
+    win.webContents.openDevTools()
+  } else {
+    // win.loadFile('dist/index.html')
+    win.loadFile(path.join(process.env.DIST, 'index.html'))
+  }
 }
 
 app.whenReady().then(createWindow)
@@ -106,13 +100,13 @@ ipcMain.handle('open-win', (_, arg) => {
     webPreferences: {
       preload,
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
     },
   })
 
-  if (VITE_DEV_SERVER_URL) {
-    childWindow.loadURL(`${VITE_DEV_SERVER_URL}#${arg}`)
+  if (process.env.VITE_DEV_SERVER_URL) {
+    childWindow.loadURL(`${process.env.VITE_DEV_SERVER_URL}#${arg}`)
   } else {
-    childWindow.loadFile(indexHtml, { hash: arg })
+    childWindow.loadFile(path.join(process.env.DIST, 'index.html'), { hash: arg })
   }
 })

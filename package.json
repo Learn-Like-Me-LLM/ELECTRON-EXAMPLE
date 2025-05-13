@@ -1,30 +1,51 @@
 {
+  "name": "electron-example",
+  "version": "0.0.0",
+  "main": "./dist-electron/main/index.js",
+  "type": "commonjs",
   "scripts": {
     "packages:install": "npm install",
-    "packages:reinstall": "rm -rf node_modules package-lock.json && npm install",
+    "packages:reinstall": "rm -rf node_modules package-lock.json && npm run packages:install",
+    "drizzle:generateSchema": "node src/scripts/migrate.js generate",
+    "drizzle:runMigrations": "node src/scripts/runMigrations.js",
+    "drizzle:rebuild": "node src/scripts/migrate.js rebuild",
+    "db:setup": "npm run drizzle:generateSchema && npm run drizzle:rebuild && npm run drizzle:runMigrations",
     "tanstackrouter:generate:routes": "npx @tanstack/router-cli ./src/routes -y",
     "dev": "vite",
-    "start": "electron ."
+    "electron:dev": "vite",
+    "build:main": "cross-env ELECTRON_MAIN=1 vite build",
+    "build:renderer": "vite build",
+    "electron:build": "npm run build:renderer && npm run build:main && electron-builder --mac",
+    "electron:rebuild": "rm -rf dist dist-electron release && npm run electron:build",
+    "electron:rebuild:max": "rm -rf dist dist-electron release && npm run packages:reinstall && npm run electron:build",
+    "electron:build:mac": "npm run build:renderer && npm run build:main && electron-builder --mac"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.76.0",
     "@tanstack/react-router": "^1.120.3",
-    "@vitejs/plugin-react": "^4.4.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^11.10.0",
     "classnames": "^2.5.1",
+    "drizzle-orm": "^0.43.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@types/react-dom": "^19.1.4",
-    "@types/react": "^19.1.4",
-    "@tanstack/router-devtools": "^1.120.3",
-    "@tanstack/react-router-devtools": "^1.120.3",
     "@tanstack/react-query-devtools": "^5.76.0",
+    "@tanstack/react-router-devtools": "^1.120.3",
     "@tanstack/router-cli": "^1.120.3",
+    "@tanstack/router-devtools": "^1.120.3",
     "@tanstack/router-plugin": "^1.120.3",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.4",
+    "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^7.0.3",
+    "drizzle-kit": "^0.31.1",
     "electron": "^36.2.0",
+    "electron-builder": "^24.13.3",
     "postcss": "^8.4.35",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "vite-plugin-electron": "^0.29.0"
   }
 }
