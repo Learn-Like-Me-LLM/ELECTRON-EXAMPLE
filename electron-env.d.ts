@@ -22,6 +22,26 @@ declare namespace NodeJS {
   }
 }
 
+// Import types from our types file
+interface IPCResponse<T = any> {
+  code: number;
+  msg?: string;
+  data?: T;
+}
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface NewUser {
+  username: string;
+  email: string;
+}
+
 interface Window {
   ipcRenderer: {
     on: (channel: string, func: (...args: any[]) => void) => void

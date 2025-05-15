@@ -17,8 +17,8 @@ export function Root() {
     <QueryClientProvider client={queryClient}>
       <div className={cx(
         'flex flex-col', 
-        'items-center justify-center', 
-        'h-screen', 'bg-blue-500'
+        'items-center',
+        'min-h-screen', 'bg-blue-500', 'overflow-y-auto'
       )}>
         <Outlet />
       </div>
