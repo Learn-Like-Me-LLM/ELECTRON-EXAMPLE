@@ -2,51 +2,109 @@ import { asc, between, count, eq, getTableColumns, sql } from 'drizzle-orm'
 import { db } from '../dbConnect'
 import { users } from '../schema'
 import { response } from '../../utils/response'
+import log from '../../logger'
 
 export class userServices {
   static async getUserById(id: number) {
-    const info =  await db.select().from(users).where(eq(users.id, id))
-    if(!info){
-      return response.error({msg:'User does not exist'})
+    log.info(`[DB] Getting user by ID: ${id}`)
+    try {
+      const info = await db.select().from(users).where(eq(users.id, id))
+      log.info(`[DB] User query result:`, info)
+      if(!info || info.length === 0){
+        log.warn(`[DB] User with ID ${id} not found`)
+        return response.error({msg:'User does not exist'})
+      }
+      return response.ok({data:info[0]})
+    } catch (error) {
+      log.error(`[DB] Error getting user by ID ${id}:`, error)
+      return response.error({msg: `Error getting user: ${error.message}`})
     }
-    return response.ok({data:info?.[0]})
   }
 
-  static async updateUserkById(id: number, data: any) {
-    return await db.transaction(async tx => {
-      const user = await tx.update(users).set(data).where(eq(users.id, id))
-      if (!user) {
-        tx.rollback()
-        return response.error()
+  static async updateUserById(id: number, data: any) {
+    log.info(`[DB] Updating user with ID ${id}:`, data)
+    try {
+      const result = db.transaction(() => {
+        return db.update(users)
+          .set(data)
+          .where(eq(users.id, id))
+          .run();
+      });
+      
+      if (!result || result.changes === 0) {
+        log.warn(`[DB] No rows affected when updating user ${id}`);
+        return response.error({msg: 'User update failed - no rows affected'});
       }
-      return response.ok()
-    })
+      
+      log.info(`[DB] User ${id} updated successfully`);
+      return response.ok();
+    } catch (error) {
+      log.error(`[DB] Error in updateUserById for ID ${id}:`, error);
+      return response.error({msg: `Error updating user: ${error.message}`});
+    }
   }
   
   static async insertUser(data: any) {
-    return await db.transaction(async tx => {
-      const user = await tx.insert(users).values(data)
-      if (!user) {
-        tx.rollback()
-        return response.error()
+    log.info(`[DB] Inserting new user:`, data)
+    try {
+      // Prepare the data with timestamps
+      const now = new Date();
+      const insertData = {
+        ...data,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      const result = db.transaction(() => {
+        return db.insert(users)
+          .values(insertData)
+          .run();
+      });
+      
+      if (!result || !result.lastInsertRowid) {
+        log.warn(`[DB] Insert failed`);
+        return response.error({msg: 'User insert failed'});
       }
-      return response.ok()
-    })
+      
+      log.info(`[DB] User inserted successfully with ID: ${result.lastInsertRowid}`);
+      return response.ok({data: {id: result.lastInsertRowid}});
+    } catch (error) {
+      log.error(`[DB] Error in insertUser:`, error);
+      return response.error({msg: `Error inserting user: ${error.message}`});
+    }
   }
 
   static async getUserList() {
-    const list =  await db.select().from(users)
-    return response.ok({data:list??[]})
+    log.info(`[DB] Getting user list`)
+    try {
+      const list = await db.select().from(users)
+      log.info(`[DB] Retrieved ${list?.length || 0} users`)
+      return response.ok({data: list || []})
+    } catch (error) {
+      log.error(`[DB] Error getting user list:`, error)
+      return response.error({msg: `Error getting user list: ${error.message}`})
+    }
   }
 
   static async deleteUserById(id: number) {
-    return await db.transaction(async tx => {
-      const user = await tx.delete(users).where(eq(users.id, id))
-      if (!user) {
-        tx.rollback()
-        return response.error()
+    log.info(`[DB] Deleting user with ID ${id}`)
+    try {
+      const result = db.transaction(() => {
+        return db.delete(users)
+          .where(eq(users.id, id))
+          .run();
+      });
+      
+      if (!result || result.changes === 0) {
+        log.warn(`[DB] No rows affected when deleting user ${id}`);
+        return response.error({msg: 'User deletion failed - no rows affected'});
       }
-      return response.ok()
-    })
+      
+      log.info(`[DB] User ${id} deleted successfully`);
+      return response.ok();
+    } catch (error) {
+      log.error(`[DB] Error in deleteUserById for ID ${id}:`, error);
+      return response.error({msg: `Error deleting user: ${error.message}`});
+    }
   }
 }
