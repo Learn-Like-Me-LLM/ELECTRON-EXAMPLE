@@ -3,9 +3,6 @@ phony: i ri db-setup gen-routes e-build e-rebuild flush
 dev:
 	npm run dev
 
-e-dev:
-	npm run electron:dev
-
 # PACKAGES ####################################################################
 i:
 	@echo "🔎🔎 Installing packages"
@@ -22,18 +19,15 @@ db-setup:
 	npm run db:setup
 
 # TANSTACK ROUTER #############################################################
-gen-routes:
+tsr-gen-routes:
 	@echo "🔎🔎 Generating Tanstack Router routes"
 	npm run tanstackrouter:generate:routes
 	
 # ELECTRON ####################################################################
-e-dev:
-	@echo "🔎🔎 Starting Electron app"
-	npm run electron:dev
-
-e-rebuild:
-	@echo "🔎🔎 Rebuilding Electron app"
-	npm run electron:rebuild
+# TODO: fix this - concurrently (vite + migrations [THEN+AND CONCURRENTLY] electron .)
+# e-dev:
+# 	@echo "🔎🔎 Starting Electron app"
+# 	npm run electron:dev
 
 # FLUSH #######################################################################
 flush:
@@ -42,10 +36,18 @@ flush:
 	make db-setup
 	make gen-routes
 
-# PRODUCTION ##################################################################
-flush-build:
+# PRODUCTION (electron-builder) ###############################################
+eb-flush:
 	@echo "🔎🔎 Flushing build assets"
 	rm -rf dist dist-electron release
+
+eb-build:
+	@echo "🔎🔎 Building Electron app"
+	npm run electron:build
+
+eb-rebuild:
+	@echo "🔎🔎 Rebuilding Electron app"
+	npm run electron:rebuild
 
 # DEBUGGING ###################################################################
 log-tail:

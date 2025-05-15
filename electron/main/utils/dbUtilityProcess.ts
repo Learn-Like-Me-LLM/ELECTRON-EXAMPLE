@@ -18,7 +18,7 @@ type DbOperation = 'run-migrations' | 'generate-schema'
 export function createDbUtilityProcess() {
   const isPackaged = process.env.NODE_ENV === 'production'
   const utilityProcessPath = isPackaged
-    ? path.join(process.resourcesPath, 'app.asar.unpacked', 'electron', 'db-utility-process.js')
+    ? path.join(process.resourcesPath, 'app.asar.unpacked', 'electron/main/utils', 'db-utility-process.js')
     : path.join(__dirname, '../../db-utility-process.js')
 
   logger.info('Creating DB utility process at path:', utilityProcessPath)

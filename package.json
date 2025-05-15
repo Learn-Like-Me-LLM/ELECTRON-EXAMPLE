@@ -11,7 +11,6 @@
     "tanstackrouter:generate:routes": "npx @tanstack/router-cli ./src/routes -y",
     "dev": "vite",
     "electron:dev": "update this -- vite must be running & issues looking @ build recoursed",
-    "electron:start": "cross-env NODE_ENV=development electron .",
     "build:main": "cross-env ELECTRON_MAIN=1 NODE_ENV=production vite build",
     "build:renderer": "cross-env NODE_ENV=production vite build",
     "electron:build": "npm run build:renderer && npm run build:main && electron-builder --mac",
