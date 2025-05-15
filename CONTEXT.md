@@ -12,19 +12,6 @@
 - `make eb-build` : build production assets with electron-builder (./electron-builder.yml)
 - `make eb-flush` : delete production assets
 
-
-## Build & Development Commands
-- `npm run dev` - Start Vite development server
-- `npm run build:main` - Build Electron main process
-- `npm run build:renderer` - Build renderer process
-- `npm run electron:build` - Build complete Electron app
-- `npm run electron:rebuild` - Clean and rebuild Electron app
-- `npm run db:setup` - Set up database (generate schema, rebuild, run migrations)
-- `npm run drizzle:generateSchema` - Generate database schema
-- `npm run drizzle:rebuild` - Rebuild database schema
-- `npm run drizzle:runMigrations` - Run database migrations
-- `npm run tanstackrouter:generate:routes` - Generate TanStack router routes
-
 ## Code Style Guidelines
 - **TypeScript**: Strict mode enabled, no unused locals/parameters
 - **Imports**: Node.js built-ins first, external deps next, internal modules last

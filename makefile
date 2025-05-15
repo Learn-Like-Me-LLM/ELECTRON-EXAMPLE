@@ -31,10 +31,10 @@ tsr-gen-routes:
 
 # FLUSH #######################################################################
 flush:
-	make flush-build
+	make eb-flush
 	make ri
 	make db-setup
-	make gen-routes
+	make tsr-gen-routes
 
 # PRODUCTION (electron-builder) ###############################################
 eb-flush:

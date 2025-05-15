@@ -17,12 +17,31 @@ export default defineConfig(({ command }) => {
   const sourcemap = isServe || !!process.env.VSCODE_DEBUG
 
   return {
+    base: process.env.NODE_ENV === 'production' ? './' : '/',
+    build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      emptyOutDir: true,
+      sourcemap: true, // Enable sourcemaps for debugging
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+            'tanstack-router': ['@tanstack/react-router']
+          }
+        }
+      }
+    },
     server: {
       port: 5173,
       strictPort: true,
     },
     plugins: [
-      TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
+      TanStackRouterVite({ 
+        target: 'react', 
+        autoCodeSplitting: true,
+        generatedRouteTree: './src/routeTree.gen.ts'
+      }),
       react(),
       electron([
         {
@@ -66,5 +85,11 @@ export default defineConfig(({ command }) => {
         }
       ]),
     ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src')
+      }
+    },
+    clearScreen: false,
   }
 })

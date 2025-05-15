@@ -21,3 +21,19 @@ declare namespace NodeJS {
     VITE_PUBLIC: string
   }
 }
+
+interface Window {
+  ipcRenderer: {
+    on: (channel: string, func: (...args: any[]) => void) => void
+    off: (channel: string, func: (...args: any[]) => void) => void
+    send: (channel: string, ...args: any[]) => void
+    invoke: (channel: string, ...args: any[]) => Promise<any>
+  }
+  electronAPI: {
+    sendLog: (level: string, data: any[]) => void
+  }
+  env: {
+    CUSTOM_ENV_VAR: string
+    NODE_ENV: string
+  }
+}

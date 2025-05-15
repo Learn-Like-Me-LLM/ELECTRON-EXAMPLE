@@ -18,7 +18,17 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     const [channel, ...omit] = args
     return ipcRenderer.invoke(channel, ...omit)
   },
+})
 
+// Add electronAPI for logger
+contextBridge.exposeInMainWorld('electronAPI', {
+  sendLog: (level: string, data: any[]) => {
+    ipcRenderer.send('__ELECTRON_LOG__', {
+      level,
+      data,
+      variables: { processType: 'renderer' }
+    })
+  }
 })
 
 contextBridge.exposeInMainWorld('env', {

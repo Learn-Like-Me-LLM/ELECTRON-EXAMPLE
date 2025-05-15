@@ -118,12 +118,90 @@ async function createWindow() {
     return { action: 'deny' }
   })
 
+  // Debug renderer errors
+  win.webContents.on('render-process-gone', (event, details) => {
+    logger.error('Renderer process crashed:', details)
+  })
+
+  win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    logger.error('Failed to load:', { errorCode, errorDescription })
+  })
+
   if (process.env.VITE_DEV_SERVER_URL) {
     win.loadURL(process.env.VITE_DEV_SERVER_URL)
     win.webContents.openDevTools()
   } else {
-    // win.loadFile('dist/index.html')
-    win.loadFile(path.join(process.env.DIST, 'index.html'))
+    // Check if the index.html file exists
+    const indexPath = path.join(process.env.DIST, 'index.html')
+    logger.info(`Loading production file from: ${indexPath}`)
+    
+    if (fs.existsSync(indexPath)) {
+      logger.info(`Index file exists at: ${indexPath}`)
+      
+      // List files in the dist directory for debugging
+      try {
+        const distFiles = fs.readdirSync(process.env.DIST)
+        logger.info(`Files in dist directory:`, distFiles)
+      } catch (err) {
+        logger.error(`Error reading dist directory:`, err)
+      }
+      
+      win.loadFile(indexPath)
+      
+      // Open DevTools in production for debugging
+      if (process.env.NODE_ENV === 'production') {
+        win.webContents.openDevTools()
+      }
+    } else {
+      logger.error(`Index file not found at: ${indexPath}`)
+      // Try to find where the file might be
+      const appRoot = process.env.APP_ROOT
+      logger.info(`Searching for index.html in app root: ${appRoot}`)
+      
+      // Recursive function to find index.html
+      function findIndexHtml(dir: string, depth = 0): string[] {
+        if (depth > 3) return [] // Limit search depth
+        
+        const results: string[] = []
+        try {
+          const files = fs.readdirSync(dir)
+          for (const file of files) {
+            const filePath = path.join(dir, file)
+            const stat = fs.statSync(filePath)
+            
+            if (stat.isDirectory()) {
+              results.push(...findIndexHtml(filePath, depth + 1))
+            } else if (file === 'index.html') {
+              results.push(filePath)
+            }
+          }
+        } catch (err) {
+          logger.error(`Error searching directory ${dir}:`, err)
+        }
+        
+        return results
+      }
+      
+      const possibleIndexFiles = findIndexHtml(appRoot)
+      logger.info(`Possible index.html files found:`, possibleIndexFiles)
+      
+      if (possibleIndexFiles.length > 0) {
+        logger.info(`Trying to load first found index.html: ${possibleIndexFiles[0]}`)
+        win.loadFile(possibleIndexFiles[0])
+      } else {
+        // Create a simple error page
+        const errorHtml = `
+          <html>
+            <body style="background: #f44336; color: white; font-family: sans-serif; padding: 20px;">
+              <h1>Error: Could not find index.html</h1>
+              <p>The application could not find the main HTML file.</p>
+              <pre>Searched in: ${process.env.DIST}</pre>
+            </body>
+          </html>
+        `
+        win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorHtml)}`)
+      }
+    }
   }
 }
 

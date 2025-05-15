@@ -7,7 +7,7 @@ export class userServices {
   static async getUserById(id: number) {
     const info =  await db.select().from(users).where(eq(users.id, id))
     if(!info){
-      return response.error({msg:'用户不存在'})
+      return response.error({msg:'User does not exist'})
     }
     return response.ok({data:info?.[0]})
   }
