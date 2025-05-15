@@ -35,10 +35,10 @@ export function getDbName() {
       NODE_ENV: process.env.NODE_ENV
     });
     
-    return electronApp.isPackaged ? 'hourglass.db' : 'hourglass.dev.db'
+    return electronApp.isPackaged ? 'electron_example.db' : 'electron_example.dev.db'
   } catch (error) {
     // Fallback for when app is not initialized or not in Electron context
-    return process.env.NODE_ENV === 'production' ? 'hourglass.db' : 'hourglass.dev.db'
+    return process.env.NODE_ENV === 'production' ? 'electron_example.db' : 'electron_example.dev.db'
   }
 }
 

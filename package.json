@@ -1,24 +1,21 @@
 {
-  "name": "electron-example",
+  "name": "electron_example",
   "version": "0.0.0",
   "main": "./dist-electron/main/index.js",
   "type": "commonjs",
   "scripts": {
-    "packages:install": "npm install",
-    "packages:reinstall": "rm -rf node_modules package-lock.json && npm run packages:install",
     "drizzle:generateSchema": "node src/scripts/migrate.js generate",
     "drizzle:runMigrations": "node src/scripts/runMigrations.js",
     "drizzle:rebuild": "node src/scripts/migrate.js rebuild",
     "db:setup": "npm run drizzle:generateSchema && npm run drizzle:rebuild && npm run drizzle:runMigrations",
     "tanstackrouter:generate:routes": "npx @tanstack/router-cli ./src/routes -y",
     "dev": "vite",
-    "electron:dev": "vite",
-    "build:main": "cross-env ELECTRON_MAIN=1 vite build",
-    "build:renderer": "vite build",
+    "electron:dev": "update this -- vite must be running & issues looking @ build recoursed",
+    "electron:start": "cross-env NODE_ENV=development electron .",
+    "build:main": "cross-env ELECTRON_MAIN=1 NODE_ENV=production vite build",
+    "build:renderer": "cross-env NODE_ENV=production vite build",
     "electron:build": "npm run build:renderer && npm run build:main && electron-builder --mac",
-    "electron:rebuild": "rm -rf dist dist-electron release && npm run electron:build",
-    "electron:rebuild:max": "rm -rf dist dist-electron release && npm run packages:reinstall && npm run electron:build",
-    "electron:build:mac": "npm run build:renderer && npm run build:main && electron-builder --mac"
+    "electron:rebuild": "rm -rf dist dist-electron release && cross-env NODE_ENV=production npm run electron:build"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.76.0",
@@ -26,6 +23,7 @@
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^11.10.0",
     "classnames": "^2.5.1",
+    "concurrently": "^9.1.2",
     "drizzle-orm": "^0.43.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
@@ -44,8 +42,10 @@
     "drizzle-kit": "^0.31.1",
     "electron": "^36.2.0",
     "electron-builder": "^24.13.3",
+    "electron-log": "^5.4.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
-    "vite-plugin-electron": "^0.29.0"
+    "vite-plugin-electron": "^0.29.0",
+    "wait-on": "^8.0.3"
   }
 }

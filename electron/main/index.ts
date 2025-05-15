@@ -2,9 +2,42 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import fs from 'fs'
 import os from 'node:os'
+import logger from './logger'
+import { dbInit } from './db/dbInit'
+import dotenv from 'dotenv'
 
-const require = createRequire(import.meta.url)
+// CONFIGURE: environment variables ###########################################
+const isProd = app.isPackaged
+const envPath = isProd
+  ? path.join(process.cwd(), '.env.production')  // Start with local path
+  : path.join(process.cwd(), '.env.development')
+
+logger.info('👀👀👀 Loading environment configuration', {
+  nodeEnv: process.env.NODE_ENV,
+  envPath,
+  cwd: process.cwd(),
+  files: fs.readdirSync(process.cwd(), { withFileTypes: true })
+})
+
+if (fs.existsSync(envPath)) {
+  logger.info(`Loading environment from ${envPath}`)
+  dotenv.config({ path: envPath })
+  logger.debug('👀👀👀 ENV VARIABLES : electron/main/env.ts', process.env.CUSTOM_ENV_VAR, process.env.NODE_ENV)
+} else {
+  // In production, try the resources path as fallback
+  if (isProd && process.resourcesPath) {
+    const prodEnvPath = path.join(process.resourcesPath, '.env.production')
+    if (fs.existsSync(prodEnvPath)) {
+      logger.info(`Loading production environment from ${prodEnvPath}`)
+      dotenv.config({ path: prodEnvPath })
+    }
+  }
+  logger.error(`Environment file not found at ${envPath}`)
+  process.exit(1)
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // The built directory structure
@@ -36,15 +69,15 @@ if (!app.requestSingleInstanceLock()) {
 
 let win: BrowserWindow | null = null
 
-// Here's the preload
-const preload = path.join(__dirname, '../preload/index.mjs')
+// DEFINE: preload
+const preloadPath = path.join(__dirname, '../preload/index.js')
 
 async function createWindow() {
   win = new BrowserWindow({
     title: 'Main window',
     icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
     webPreferences: {
-      preload,
+      preload: preloadPath,
       nodeIntegration: true,
       contextIsolation: true,
     },
@@ -70,7 +103,27 @@ async function createWindow() {
   }
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(async () => {
+  logger.info('🎉🎉 App is ready')
+  logger.debug('ENV VARIABLES : electron/main/index.ts : app.whenReady(...)', process.env.CUSTOM_ENV_VAR, process.env.NODE_ENV)
+  
+  try {
+    // INITIALIZE: database
+    logger.info('🔎🔎 Initializing database...')
+    await dbInit()
+    logger.info('🎉🎉 Database initialized successfully')
+    
+    // CREATE: window
+    await createWindow()  
+  } catch (error) {
+    logger.error('Failed to initialize application:', error)
+    app.quit()
+  }
+})
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow()
+})
 
 app.on('window-all-closed', () => {
   win = null

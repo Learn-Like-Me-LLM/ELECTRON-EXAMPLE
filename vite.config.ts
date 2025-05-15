@@ -17,6 +17,10 @@ export default defineConfig(({ command }) => {
   const sourcemap = isServe || !!process.env.VSCODE_DEBUG
 
   return {
+    server: {
+      port: 5173, // Explicitly set Vite's port
+      strictPort: true, // Ensure Vite uses this exact port
+    },
     plugins: [
       TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
       react(),

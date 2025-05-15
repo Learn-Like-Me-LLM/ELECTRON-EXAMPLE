@@ -19,8 +19,11 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     return ipcRenderer.invoke(channel, ...omit)
   },
 
-  // You can expose other APTs you need here.
-  // ...
+})
+
+contextBridge.exposeInMainWorld('env', {
+  CUSTOM_ENV_VAR: process.env.CUSTOM_ENV_VAR,
+  NODE_ENV: process.env.NODE_ENV,
 })
 
 // --------- Preload scripts loading ---------
