@@ -10,33 +10,57 @@ import dotenv from 'dotenv'
 
 // CONFIGURE: environment variables ###########################################
 const isProd = app.isPackaged
-const envPath = isProd
-  ? path.join(process.cwd(), '.env.production')  // Start with local path
-  : path.join(process.cwd(), '.env.development')
+
+// Get possible env file locations
+const getEnvPaths = () => {
+  if (isProd) {
+    const paths = []
+    // First try resources path
+    if (process.resourcesPath) {
+      paths.push(path.join(process.resourcesPath, '.env.production'))
+    }
+    // Then try app path
+    const appPath = path.dirname(app.getPath('exe'))
+    paths.push(path.join(appPath, '.env.production'))
+    return paths
+  }
+  // Development mode - just use local path
+  return [path.join(process.cwd(), '.env.development')]
+}
+
+const envPaths = getEnvPaths()
 
 logger.info('👀👀👀 Loading environment configuration', {
   nodeEnv: process.env.NODE_ENV,
-  envPath,
+  isProd,
+  envPaths,
   cwd: process.cwd(),
-  files: fs.readdirSync(process.cwd(), { withFileTypes: true })
+  resourcesPath: process.resourcesPath,
+  appPath: path.dirname(app.getPath('exe')),
 })
 
-if (fs.existsSync(envPath)) {
-  logger.info(`Loading environment from ${envPath}`)
-  dotenv.config({ path: envPath })
-  logger.debug('👀👀👀 ENV VARIABLES : electron/main/env.ts', process.env.CUSTOM_ENV_VAR, process.env.NODE_ENV)
-} else {
-  // In production, try the resources path as fallback
-  if (isProd && process.resourcesPath) {
-    const prodEnvPath = path.join(process.resourcesPath, '.env.production')
-    if (fs.existsSync(prodEnvPath)) {
-      logger.info(`Loading production environment from ${prodEnvPath}`)
-      dotenv.config({ path: prodEnvPath })
-    }
+// Try loading env file from each possible location
+let envLoaded = false
+for (const envPath of envPaths) {
+  if (fs.existsSync(envPath)) {
+    logger.info(`Loading environment from ${envPath}`)
+    dotenv.config({ path: envPath })
+    envLoaded = true
+    break
   }
-  logger.error(`Environment file not found at ${envPath}`)
-  process.exit(1)
 }
+
+if (!envLoaded) {
+  logger.error('No environment file found in any of these locations:', envPaths)
+  // Instead of exiting, set some default values
+  process.env.NODE_ENV = isProd ? 'production' : 'development'
+  // You might want to set other critical env vars here
+}
+
+logger.debug('Current environment variables:', {
+  NODE_ENV: process.env.NODE_ENV,
+  CUSTOM_ENV_VAR: process.env.CUSTOM_ENV_VAR
+})
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -151,7 +175,7 @@ app.on('activate', () => {
 ipcMain.handle('open-win', (_, arg) => {
   const childWindow = new BrowserWindow({
     webPreferences: {
-      preload,
+      preload: preloadPath,
       nodeIntegration: true,
       contextIsolation: true,
     },

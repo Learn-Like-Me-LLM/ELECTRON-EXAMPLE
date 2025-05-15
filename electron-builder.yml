@@ -29,6 +29,18 @@ directories:
 files:
   - dist/      # Contains your built web application (React/Vue/etc.)
   - dist-electron/  # Contains compiled Electron main and preload scripts
+  - "!**/.env.production"   # Exclude .env.production from asar
+  - "!migrations${/*}"  # Exclude migrations from asar packaging
+  
+# Add extraResources to copy files outside of asar
+extraResources:
+  - .env.production
+  - from: "migrations"
+    to: "app.asar.unpacked/migrations"
+
+# Specify files that should not be packed into asar
+asarUnpack:
+  - "node_modules/better-sqlite3/**"
 
 # Compression Settings ########################################################
 # maximum: Uses highest compression level for better file size

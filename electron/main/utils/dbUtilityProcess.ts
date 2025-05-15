@@ -5,7 +5,9 @@ import logger from '../logger'
 interface DbOperationResult {
   success: boolean
   error?: string
+  stack?: string
   data?: any
+  type?: DbOperation
 }
 
 type DbOperation = 'run-migrations' | 'generate-schema'
@@ -47,14 +49,25 @@ export function createDbUtilityProcess() {
       const messageHandler = (e: Electron.MessageEvent) => {
         const response = e.data as DbOperationResult
         
-        if (response && typeof response === 'object' && 'type' in response && response.type === operation) {
+        if (response && typeof response === 'object') {
           // Clean up the listener to avoid memory leaks
           dbProcess.removeListener('message', messageHandler)
           
-          if (response.success) {
-            resolve(response)
+          if ('type' in response && response.type === operation) {
+            if (response.success) {
+              logger.info(`Operation ${operation} completed successfully`, response.data || {})
+              resolve(response)
+            } else {
+              logger.error(`Operation ${operation} failed:`, {
+                error: response.error,
+                stack: response.stack,
+                data: response.data
+              })
+              reject(new Error(response.error || 'Unknown error'))
+            }
           } else {
-            reject(new Error(response.error || 'Unknown error'))
+            logger.warn(`Received unexpected response type for operation ${operation}:`, response)
+            resolve(response) // Still resolve as it might be a valid response
           }
         }
       }
@@ -63,12 +76,25 @@ export function createDbUtilityProcess() {
       dbProcess.on('message', messageHandler)
       
       // Send the operation message
-      dbProcess.postMessage({ type: operation })
+      try {
+        dbProcess.postMessage({ 
+          type: operation,
+          env: process.env.NODE_ENV,
+          timestamp: new Date().toISOString()
+        })
+        logger.info(`Sent operation ${operation} to utility process`)
+      } catch (err) {
+        logger.error(`Failed to send operation ${operation} to utility process:`, err)
+        dbProcess.removeListener('message', messageHandler)
+        reject(err)
+      }
       
       // Set a timeout to prevent hanging
       setTimeout(() => {
         dbProcess.removeListener('message', messageHandler)
-        reject(new Error(`Operation ${operation} timed out after 30 seconds`))
+        const timeoutError = new Error(`Operation ${operation} timed out after 30 seconds`)
+        logger.error(timeoutError)
+        reject(timeoutError)
       }, 30000)
     })
   }
