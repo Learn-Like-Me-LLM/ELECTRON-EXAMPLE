@@ -9,7 +9,12 @@ Simple `Electron` + `Vite` + `Tanstack Router` + `SQLite` + `Drizzle` boilerplat
 ## Local Development
 
 1. `% make db-setup`
-2. `% make dev`
+2. `% make eb-rebuild`
+3. `% make dev`
+
+```bash
+make db-setup && make eb-rebuild && make dev
+```
 
 ## Build Production Assets
 
@@ -17,7 +22,7 @@ Simple `Electron` + `Vite` + `Tanstack Router` + `SQLite` + `Drizzle` boilerplat
 > 
 > this project utilizes [electron-builder.yml](./electron-builder.yml)
 
-- `% make eb-build` 👉 `/release/<version>/...`
+- `% make eb-build` / `% make eb-rebuild` 👉 `/release/<version>/...`
 
 ## Database _(sqlite - better-sqlite3)_
 
@@ -40,86 +45,3 @@ Simple `Electron` + `Vite` + `Tanstack Router` + `SQLite` + `Drizzle` boilerplat
 > The log file has a maximum size of 10MB.
 
 - `% make log-tail`
-
-<details>
-<summary><strong>Repo File Structure</strong></summary>
-  
-  ```
-  % tree -I "node_modules|dist-electron|dist|release|.opencode"
-  .
-  ├── CONTEXT.md
-  ├── drizzle.config.ts
-  ├── electron
-  │   ├── main
-  │   │   ├── db
-  │   │   │   ├── controller
-  │   │   │   │   ├── index.ts
-  │   │   │   │   └── user.ts
-  │   │   │   ├── dbConnect.ts
-  │   │   │   ├── dbInit.ts
-  │   │   │   ├── schema
-  │   │   │   │   ├── index.ts
-  │   │   │   │   └── users.ts
-  │   │   │   ├── seeds
-  │   │   │   └── services
-  │   │   │       └── user.ts
-  │   │   ├── index.ts
-  │   │   ├── logger
-  │   │   │   └── index.ts
-  │   │   └── utils
-  │   │       ├── constants.ts
-  │   │       ├── database.ts
-  │   │       ├── db-utility-process.js
-  │   │       ├── dbUtilityProcess.ts
-  │   │       ├── index.ts
-  │   │       └── response.ts
-  │   └── preload
-  │       └── index.ts
-  ├── electron-builder.yml
-  ├── electron-env.d.ts
-  ├── index.html
-  ├── LICENSE
-  ├── makefile
-  ├── migrations
-  │   ├── 0000_concerned_vivisector.sql
-  │   └── meta
-  │       ├── _journal.json
-  │       └── 0000_snapshot.json
-  ├── package-lock.json
-  ├── package.json
-  ├── postcss.config.js
-  ├── README.md
-  ├── src
-  │   ├── assets
-  │   │   ├── electron.svg
-  │   │   └── vite.svg
-  │   ├── components
-  │   ├── index.css
-  │   ├── lib
-  │   │   ├── logger.ts
-  │   │   └── queryClient.ts
-  │   ├── main.tsx
-  │   ├── routes
-  │   │   ├── __root.tsx
-  │   │   ├── _404.tsx
-  │   │   ├── fallback.tsx
-  │   │   ├── index.tsx
-  │   │   └── settings.tsx
-  │   ├── routeTree.gen.ts
-  │   ├── scripts
-  │   │   ├── migrate.js
-  │   │   └── runMigrations.js
-  │   ├── styles.css
-  │   └── vite-env.d.ts
-  ├── tailwind.config.js
-  ├── tanstack.config.ts
-  ├── tsconfig.electron.json
-  ├── tsconfig.json
-  ├── tsconfig.node.json
-  ├── tsconfig.web.json
-  └── vite.config.ts
-
-  19 directories, 53 files
-  ```
-
-</details>

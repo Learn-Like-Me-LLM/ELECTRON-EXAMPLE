@@ -1,5 +1,14 @@
 phony: i ri db-setup gen-routes e-build e-rebuild flush
 
+kac:
+	@echo "🔎🔎 Starting Kit and Caboodle"
+	make eb-flush
+	make ri
+	make db-setup
+	make tsr-gen-routes
+	make eb-rebuild
+	make dev
+
 dev:
 	npm run dev
 
@@ -28,13 +37,6 @@ tsr-gen-routes:
 # e-dev:
 # 	@echo "🔎🔎 Starting Electron app"
 # 	npm run electron:dev
-
-# FLUSH #######################################################################
-flush:
-	make eb-flush
-	make ri
-	make db-setup
-	make tsr-gen-routes
 
 # PRODUCTION (electron-builder) ###############################################
 eb-flush:
