@@ -10,7 +10,12 @@ kac:
 	make dev
 
 dev:
+	@echo "🔎🔎 Starting local development process"
 	npm run dev
+
+debug:
+	@echo "🔎🔎 Starting local debug process"
+	npm run debug
 
 # PACKAGES ####################################################################
 i:
@@ -60,3 +65,4 @@ log-truncate:
 	@echo "🧹 Truncating log file"
 	> ~/Library/Application\ Support/electron_example/log/main.log
 	@echo "✅ Log file has been truncated"
+

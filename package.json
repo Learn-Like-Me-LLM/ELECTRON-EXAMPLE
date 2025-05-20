@@ -10,8 +10,9 @@
     "db:setup": "npm run drizzle:generateSchema && npm run drizzle:rebuild && npm run drizzle:runMigrations",
     "tanstackrouter:generate:routes": "npx @tanstack/router-cli ./src/routes -y",
     "dev": "vite",
-    "electron:dev": "update this -- vite must be running & issues looking @ build recoursed",
+    "debug": "concurrently --kill-others-on-fail \"cross-env VSCODE_DEBUG=true npm run dev\" \"wait-on -t 120000 http://localhost:5173 && echo 'Vite dev server is ready on http://localhost:5173. You can now launch Debug MAIN PROCESS in VSCode.'\"",
     "build:main": "cross-env ELECTRON_MAIN=1 NODE_ENV=production vite build",
+    "build:main:debug": "cross-env ELECTRON_MAIN=1 VSCODE_DEBUG=true NODE_ENV=development vite build",
     "build:renderer": "cross-env NODE_ENV=production vite build",
     "electron:build": "npm run build:renderer && npm run build:main && electron-builder --mac",
     "electron:rebuild": "rm -rf dist dist-electron release && cross-env NODE_ENV=production npm run electron:build"

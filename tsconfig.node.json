@@ -4,7 +4,9 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "types": ["node"]
+    "types": ["node"],
+    "sourceMap": true,
+    "outDir": "dist-electron/main"
   },
   "include": [
     "electron/preload", "electron/main", 
