@@ -24,18 +24,15 @@ export const APP_NAME = 'electron_example'
 
 export function getDbName() {
   try {
-    if (!electronApp) {
-      throw new Error('Not in Electron context');
-    }
-    
-    logger.debug('App Environment Debug:', {
-      isPackaged: electronApp.isPackaged,
-      resourcePath: electronApp.getAppPath(),
-      execPath: electronApp.getPath('exe'),
-      NODE_ENV: process.env.NODE_ENV
-    });
-    
+    // V2
     return electronApp.isPackaged ? 'electron_example.db' : 'electron_example.dev.db'
+
+    // V1
+    // if (!electronApp) {
+    //   throw new Error('Not in Electron context');
+    // }
+    
+    // return electronApp.isPackaged ? 'electron_example.db' : 'electron_example.dev.db'
   } catch (error) {
     // Fallback for when app is not initialized or not in Electron context
     return process.env.NODE_ENV === 'production' ? 'electron_example.db' : 'electron_example.dev.db'

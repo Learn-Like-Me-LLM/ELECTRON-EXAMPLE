@@ -8,6 +8,8 @@ import logger from './logger'
 import { dbInit } from './db/dbInit'
 import dotenv from 'dotenv'
 
+const logPrefix = `[MAIN PROCESS]`
+
 // CONFIGURE: environment variables ###########################################
 const isProd = app.isPackaged
 
@@ -30,20 +32,10 @@ const getEnvPaths = () => {
 
 const envPaths = getEnvPaths()
 
-logger.info('👀👀👀 Loading environment configuration', {
-  nodeEnv: process.env.NODE_ENV,
-  isProd,
-  envPaths,
-  cwd: process.cwd(),
-  resourcesPath: process.resourcesPath,
-  appPath: path.dirname(app.getPath('exe')),
-})
-
 // Try loading env file from each possible location
 let envLoaded = false
 for (const envPath of envPaths) {
   if (fs.existsSync(envPath)) {
-    logger.info(`Loading environment from ${envPath}`)
     dotenv.config({ path: envPath })
     envLoaded = true
     break
@@ -51,16 +43,11 @@ for (const envPath of envPaths) {
 }
 
 if (!envLoaded) {
-  logger.error('No environment file found in any of these locations:', envPaths)
+  logger.error(`${logPrefix} No environment file found in any of these locations:`, envPaths)
   // Instead of exiting, set some default values
   process.env.NODE_ENV = isProd ? 'production' : 'development'
   // You might want to set other critical env vars here
 }
-
-logger.debug('Current environment variables:', {
-  NODE_ENV: process.env.NODE_ENV,
-  CUSTOM_ENV_VAR: process.env.CUSTOM_ENV_VAR
-})
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -120,11 +107,11 @@ async function createWindow() {
 
   // Debug renderer errors
   win.webContents.on('render-process-gone', (event, details) => {
-    logger.error('Renderer process crashed:', details)
+    logger.error(`${logPrefix} Renderer process crashed:`, details)
   })
 
   win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-    logger.error('Failed to load:', { errorCode, errorDescription })
+    logger.error(`${logPrefix} Failed to load:`, { errorCode, errorDescription })
   })
 
   if (process.env.VITE_DEV_SERVER_URL) {
@@ -133,19 +120,8 @@ async function createWindow() {
   } else {
     // Check if the index.html file exists
     const indexPath = path.join(process.env.DIST, 'index.html')
-    logger.info(`Loading production file from: ${indexPath}`)
     
-    if (fs.existsSync(indexPath)) {
-      logger.info(`Index file exists at: ${indexPath}`)
-      
-      // List files in the dist directory for debugging
-      try {
-        const distFiles = fs.readdirSync(process.env.DIST)
-        logger.info(`Files in dist directory:`, distFiles)
-      } catch (err) {
-        logger.error(`Error reading dist directory:`, err)
-      }
-      
+    if (fs.existsSync(indexPath)) {      
       win.loadFile(indexPath)
       
       // Open DevTools in production for debugging
@@ -153,61 +129,26 @@ async function createWindow() {
         win.webContents.openDevTools()
       }
     } else {
-      logger.error(`Index file not found at: ${indexPath}`)
-      // Try to find where the file might be
-      const appRoot = process.env.APP_ROOT
-      logger.info(`Searching for index.html in app root: ${appRoot}`)
-      
-      // Recursive function to find index.html
-      function findIndexHtml(dir: string, depth = 0): string[] {
-        if (depth > 3) return [] // Limit search depth
-        
-        const results: string[] = []
-        try {
-          const files = fs.readdirSync(dir)
-          for (const file of files) {
-            const filePath = path.join(dir, file)
-            const stat = fs.statSync(filePath)
-            
-            if (stat.isDirectory()) {
-              results.push(...findIndexHtml(filePath, depth + 1))
-            } else if (file === 'index.html') {
-              results.push(filePath)
-            }
-          }
-        } catch (err) {
-          logger.error(`Error searching directory ${dir}:`, err)
-        }
-        
-        return results
-      }
-      
-      const possibleIndexFiles = findIndexHtml(appRoot)
-      logger.info(`Possible index.html files found:`, possibleIndexFiles)
-      
-      if (possibleIndexFiles.length > 0) {
-        logger.info(`Trying to load first found index.html: ${possibleIndexFiles[0]}`)
-        win.loadFile(possibleIndexFiles[0])
-      } else {
-        // Create a simple error page
-        const errorHtml = `
-          <html>
-            <body style="background: #f44336; color: white; font-family: sans-serif; padding: 20px;">
-              <h1>Error: Could not find index.html</h1>
-              <p>The application could not find the main HTML file.</p>
-              <pre>Searched in: ${process.env.DIST}</pre>
-            </body>
-          </html>
-        `
-        win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorHtml)}`)
-      }
+      logger.error(`${logPrefix} Index file not found at: ${indexPath}. This is the expected location for the production build.`)
+      // Create a simple error page
+      const errorHtml = `
+        <html>
+          <body style="background: #f44336; color: white; font-family: sans-serif; padding: 20px; text-align: center;">
+            <h1>Application Error</h1>
+            <p>Could not load the application's main page (index.html).</p>
+            <p>The file was not found in the expected directory:</p>
+            <p><code>${process.env.DIST}</code></p>
+            <p>Please ensure the application has been built correctly and all necessary files are present.</p>
+          </body>
+        </html>
+      `
+      win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorHtml)}`)
     }
   }
 }
 
 app.whenReady().then(async () => {
   logger.info('🎉🎉 App is ready')
-  logger.debug('ENV VARIABLES : electron/main/index.ts : app.whenReady(...)', process.env.CUSTOM_ENV_VAR, process.env.NODE_ENV)
   
   try {
     // INITIALIZE: database
@@ -218,7 +159,7 @@ app.whenReady().then(async () => {
     // CREATE: window
     await createWindow()  
   } catch (error) {
-    logger.error('Failed to initialize application:', error)
+    logger.error('🚨🚨 Failed to initialize application:', error)
     app.quit()
   }
 })

@@ -6,8 +6,6 @@ export const Route = createFileRoute('/fallback')({
 })
 
 function FallbackRoute() {
-  logger.info('Rendering fallback route')
-  
   return (
     <div className="flex flex-col items-center justify-center p-4 text-white">
       <h1 className="text-2xl font-bold mb-4">Fallback Page</h1>

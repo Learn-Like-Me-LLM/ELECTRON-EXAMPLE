@@ -16,11 +16,19 @@ try {
 
 // Setup logging
 function log(...args) {
-  console.log('[DB Utility Process]', ...args)
+  if (parentPort) {
+    parentPort.postMessage({ type: '__LOG__', level: 'info', data: args });
+  } else {
+    console.log('[DB Utility Process - No ParentPort]', ...args);
+  }
 }
 
 function error(...args) {
-  console.error('[DB Utility Process]', ...args)
+  if (parentPort) {
+    parentPort.postMessage({ type: '__LOG__', level: 'error', data: args });
+  } else {
+    console.error('[DB Utility Process - No ParentPort]', ...args);
+  }
 }
 
 // Determine environment

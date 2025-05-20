@@ -11,8 +11,6 @@ export const Route = createRootRoute({
 })
 
 export function Root() {
-  logger.info('Rendering Root component')
-  
   return (
     <QueryClientProvider client={queryClient}>
       <div className={cx(

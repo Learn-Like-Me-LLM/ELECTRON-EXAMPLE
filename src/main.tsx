@@ -5,6 +5,8 @@ import { routeTree } from './routeTree.gen'
 import './styles.css'
 import logger from './lib/logger'
 
+const logPrefix = `[RENDER > main.tsx]`
+
 // Create a simple error display component
 function ErrorDisplay({ error }: { error: Error | string }) {
   const errorMessage = error instanceof Error ? error.message : error
@@ -43,26 +45,7 @@ function ErrorDisplay({ error }: { error: Error | string }) {
   )
 }
 
-// Log environment and route information
-logger.info('Renderer process starting', {
-  nodeEnv: window.env?.NODE_ENV,
-  isProd: window.env?.NODE_ENV === 'production',
-  location: window.location.href
-})
-
 try {
-  logger.info('Creating router')
-  
-  // Log route tree for debugging
-  try {
-    logger.info('Route tree:', {
-      routes: routeTree.id || 'unknown',
-      rootChildren: Object.keys(routeTree.children || {}).join(', ') || 'none'
-    })
-  } catch (e) {
-    logger.error('Failed to log route tree:', e)
-  }
-  
   // Create router with configuration for Electron
   const router = createRouter({ 
     routeTree,
@@ -79,7 +62,6 @@ try {
     throw new Error('Root element #app not found')
   }
   
-  logger.info('Creating root and rendering app')
   const root = createRoot(rootElement)
   root.render(
     <React.StrictMode>
@@ -87,9 +69,9 @@ try {
     </React.StrictMode>
   )
   
-  logger.info('App rendered successfully')
+  logger.info(`🎉🎉 App rendered successfully`)
 } catch (error) {
-  logger.error('Failed to initialize renderer:', error)
+  logger.error(`🚨🚨 Failed to initialize renderer:`, error)
   
   // Display error on screen for debugging
   const rootElement = document.getElementById('app')

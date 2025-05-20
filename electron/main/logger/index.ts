@@ -2,6 +2,8 @@ import { app, ipcMain } from 'electron'
 import log from 'electron-log'
 import path from 'path'
 import { APP_NAME } from '../utils/constants'
+import moment from 'moment'
+import short from 'short-uuid'
 
 /**
  * Logging Levels
@@ -13,16 +15,23 @@ import { APP_NAME } from '../utils/constants'
  * silly
  */
 
+const SESSION_ID = short.generate()
+
 const logFormat = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}][{processType}][{level}]{scope} {text}'
 
 // Configure file transport only if we can access app
 try {
   if (app) {
-    log.transports.file.resolvePathFn = () =>
-      path.join(app.getPath('appData'), APP_NAME, 'log', 'main.log')
+    const now = moment().utc().toDate()
 
-    const date = new Date()
-    const dateStr = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+    const day = now.getDate()
+    const month = now.getMonth() + 1
+    const year = now.getFullYear()
+
+    const dateStr = `${year}-${month}-${day}`
+
+    log.transports.file.resolvePathFn = () =>
+      path.join(app.getPath('appData'), APP_NAME, 'log', `${year}-${month}-${day}`, `${SESSION_ID}.log`)
 
     log.transports.file.fileName = dateStr + '.log'
     log.transports.file.format = logFormat

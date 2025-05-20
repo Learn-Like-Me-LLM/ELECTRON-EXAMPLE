@@ -5,6 +5,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { User, NewUser, IPCResponse } from '../lib/types'
 import logger from '../lib/logger'
 
+const logPrefix = `[RENDER > homepage]`
+
 export const Route = createFileRoute('/')({
   component: Index
 })
@@ -20,13 +22,11 @@ export function Index() {
   const { data: usersResponse, isLoading, error: fetchError } = useQuery<IPCResponse<User[]>>({
     queryKey: ['users'],
     queryFn: async () => {
-      logger.info('Fetching user list')
       try {
         const response = await window.ipcRenderer.invoke('db/user/getList')
-        logger.info('User list response:', response)
         return response
       } catch (err) {
-        logger.error('Error fetching user list:', err)
+        logger.error(`${logPrefix} Error fetching user list:`, err)
         throw err
       }
     }
@@ -35,7 +35,7 @@ export function Index() {
   // Log any fetch errors
   useEffect(() => {
     if (fetchError) {
-      logger.error('Query error fetching users:', fetchError)
+      logger.error(`${logPrefix} Query error fetching users:`, fetchError)
       setError('Failed to load users. Check the logs for details.')
     }
   }, [fetchError])
@@ -45,25 +45,22 @@ export function Index() {
   // Add user mutation
   const addUserMutation = useMutation({
     mutationFn: async (userData: NewUser) => {
-      logger.info('Adding new user:', userData)
       try {
         const response = await window.ipcRenderer.invoke('db/user/addOrUpdate', userData)
-        logger.info('Add user response:', response)
         
         // Check for error response
         if (response.code !== 200) {
-          logger.error('Error adding user:', response)
+          logger.error(`${logPrefix} Error adding user:`, response)
           throw new Error(response.msg || 'Failed to add user')
         }
         
         return response
       } catch (err) {
-        logger.error('Error in addUserMutation:', err)
+        logger.error(`${logPrefix} Error in addUserMutation:`, err)
         throw err
       }
     },
-    onSuccess: (data) => {
-      logger.info('User added successfully:', data)
+    onSuccess: () => {
       // Reset form
       setUsername('')
       setEmail('')
@@ -72,7 +69,7 @@ export function Index() {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
     onError: (err: Error) => {
-      logger.error('Mutation error adding user:', err)
+      logger.error(`${logPrefix} Mutation error adding user:`, err)
       setError(`Failed to add user: ${err.message}`)
     }
   })
@@ -80,30 +77,27 @@ export function Index() {
   // Delete user mutation
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      logger.info('Deleting user with ID:', userId)
       try {
         const response = await window.ipcRenderer.invoke('db/user/deleteById', { id: userId })
-        logger.info('Delete user response:', response)
         
         // Check for error response
         if (response.code !== 200) {
-          logger.error('Error deleting user:', response)
+          logger.error(`${logPrefix} Error deleting user:`, response)
           throw new Error(response.msg || 'Failed to delete user')
         }
         
         return response
       } catch (err) {
-        logger.error('Error in deleteUserMutation:', err)
+        logger.error(`${logPrefix} Error in deleteUserMutation:`, err)
         throw err
       }
     },
     onSuccess: () => {
-      logger.info('User deleted successfully')
       // Refetch users
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
     onError: (err: Error) => {
-      logger.error('Mutation error deleting user:', err)
+      logger.error(`${logPrefix} Mutation error deleting user:`, err)
       setError(`Failed to delete user: ${err.message}`)
     }
   })
@@ -112,13 +106,11 @@ export function Index() {
     e.preventDefault()
     setError(null)
     
-    logger.info('Form submitted with values:', { username, email })
-    
     if (username && email) {
       addUserMutation.mutate({ username, email })
     } else {
       setError('Username and email are required')
-      logger.warn('Form validation failed - missing fields')
+      logger.warn(`${logPrefix} Form validation failed - missing fields`)
     }
   }
   

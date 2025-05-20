@@ -1,3 +1,5 @@
+/// <reference path="../../electron-env.d.ts" />
+
 /**
  * Renderer process logger
  * Uses IPC to send logs to the main process for unified logging
