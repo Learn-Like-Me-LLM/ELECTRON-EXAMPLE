@@ -1,3 +1,4 @@
+// ROOT TypeScript configuration, setting common compiler options and referencing other tsconfig files.
 {
   "compilerOptions": {
     "target": "ES2020",

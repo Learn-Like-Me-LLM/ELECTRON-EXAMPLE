@@ -1,9 +1,10 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { RouterProvider, createRouter, createMemoryHistory, createBrowserHistory } from '@tanstack/react-router'
+import { RouterProvider, createRouter, createMemoryHistory } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 import './styles.css'
-import logger from './lib/logger'
+import log from 'electron-log/renderer'
+const mainLogger = log.scope('main.tsx')
 
 // Create a simple error display component
 function ErrorDisplay({ error }: { error: Error | string }) {
@@ -43,26 +44,7 @@ function ErrorDisplay({ error }: { error: Error | string }) {
   )
 }
 
-// Log environment and route information
-logger.info('Renderer process starting', {
-  nodeEnv: window.env?.NODE_ENV,
-  isProd: window.env?.NODE_ENV === 'production',
-  location: window.location.href
-})
-
 try {
-  logger.info('Creating router')
-  
-  // Log route tree for debugging
-  try {
-    logger.info('Route tree:', {
-      routes: routeTree.id || 'unknown',
-      rootChildren: Object.keys(routeTree.children || {}).join(', ') || 'none'
-    })
-  } catch (e) {
-    logger.error('Failed to log route tree:', e)
-  }
-  
   // Create router with configuration for Electron
   const router = createRouter({ 
     routeTree,
@@ -79,7 +61,6 @@ try {
     throw new Error('Root element #app not found')
   }
   
-  logger.info('Creating root and rendering app')
   const root = createRoot(rootElement)
   root.render(
     <React.StrictMode>
@@ -87,9 +68,9 @@ try {
     </React.StrictMode>
   )
   
-  logger.info('App rendered successfully')
+  mainLogger.info(`🎉🎉 App rendered successfully`)
 } catch (error) {
-  logger.error('Failed to initialize renderer:', error)
+  mainLogger.error(`🚨🚨 Failed to initialize renderer:`, error)
   
   // Display error on screen for debugging
   const rootElement = document.getElementById('app')

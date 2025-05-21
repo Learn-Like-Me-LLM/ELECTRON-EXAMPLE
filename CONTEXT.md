@@ -18,9 +18,7 @@
 - **Naming**: camelCase for variables/functions, PascalCase for components/types, UPPER_CASE for constants
 - **Database**: snake_case for column names, controller/service pattern for operations
 - **Error Handling**: Try/catch with logger.error(), response utility for standardized responses
-- **Logging**: electron-log with formatted timestamps, levels: error, warn, info, debug
-- **Formatting**: 2-space indent, single quotes, semicolons, trailing commas in multi-line objects
-- **Components**: Function declarations for React components, TanStack Router pattern
+- **State Management**: TanStack Query for server state, React Router for client state
 - **Styling**: Tailwind CSS with classnames for conditional classes
 - **Path Aliases**: Use @/* for src directory imports
 

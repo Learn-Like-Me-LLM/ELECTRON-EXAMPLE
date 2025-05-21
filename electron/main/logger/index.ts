@@ -1,45 +1,66 @@
 import { app, ipcMain } from 'electron'
-import log from 'electron-log'
+import log from 'electron-log/main'
 import path from 'path'
-import { APP_NAME } from '../utils/constants'
+import { APP_NAME, SESSION_ID, electronLogMessageFormat } from '../utils/constants'
+import moment from 'moment'
 
-/**
- * Logging Levels
- * error,
- * warn,
- * info,
- * verbose,
- * debug,
- * silly
- */
+// Initialize electron-log. This is optional but recommended if you also log from renderer processes.
+// It allows renderers to use `import log from 'electron-log/renderer'`
+log.initialize();
 
-const logFormat = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}][{processType}][{level}]{scope} {text}'
-
-// Configure file transport only if we can access app
 try {
   if (app) {
-    log.transports.file.resolvePathFn = () =>
-      path.join(app.getPath('appData'), APP_NAME, 'log', 'main.log')
+    const now = moment().utc()
+    const year = now.year().toString()
+    const month = (now.month() + 1).toString().padStart(2, '0')
+    const day = now.date().toString().padStart(2, '0')
 
-    const date = new Date()
-    const dateStr = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+    log.transports.file.resolvePathFn = (variables: any, message: any) => {
+      // Simplified logging for clarity
+      console.log(
+        `🔎 main/logger/index.ts resolvePathFn: processType='${message?.variables?.processType}', scope='${message?.variables?.scope}', defaultPath='${variables.defaultPath}'`
+      );
 
-    log.transports.file.fileName = dateStr + '.log'
-    log.transports.file.format = logFormat
-    log.transports.file.maxSize = 10 * 1024 * 1024
+      const datePath = `${year}-${month}-${day}`;
+      const fileName = `${message?.variables?.processType || 'unknown'}.log`;
+
+      if (message?.variables?.processType === 'utility') {
+        return path.join(
+          variables.userData,
+          'logs',
+          datePath,
+          SESSION_ID,
+          message?.variables?.scope || 'unknown-utility',
+          fileName
+        );
+      } 
+
+      return path.join(
+        variables.userData,
+        'logs',
+        datePath,
+        SESSION_ID,
+        fileName
+      );
+    };
+
+    log.transports.file.format = electronLogMessageFormat;
+    // Optionally, set the level for file transport
+    // log.transports.file.level = 'info'; 
   }
 } catch (error) {
-  console.warn('Unable to configure file transport:', error)
+  console.error('🚨🚨 Failed to initialize logger file transport:', error)
 }
 
-// Configure console transport
-log.transports.console.format = logFormat
+log.transports.console.format = electronLogMessageFormat;
+// Optionally, set the level for console transport
+// log.transports.console.level = 'info';
 
-// Listen for logs from renderer process
-ipcMain.on('__ELECTRON_LOG__', (event, { level, data, variables }) => {
-  if (log[level]) {
-    log[level](...data, variables)
-  }
-})
+log.scope.labelPadding = false;
+
+// Example of a preprocess hook if needed, for now, it's not set.
+// log.hooks.preprocess = (message: any): any => {
+//   return message;
+// };
 
 export default log

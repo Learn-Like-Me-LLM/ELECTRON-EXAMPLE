@@ -1,10 +1,13 @@
+// TypeScript configuration for Node.js-specific parts of the project (e.g., Vite, TanStack Router configs).
 {
   "compilerOptions": {
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "types": ["node"]
+    "types": ["node"],
+    "sourceMap": true,
+    "outDir": "dist-electron/main"
   },
   "include": [
     "electron/preload", "electron/main", 

@@ -3,7 +3,6 @@ import { getDatabasePath } from './electron/main/utils/database'
 import { existsSync, mkdirSync } from 'fs'
 import { dirname } from 'path'
 
-// Get the database path that works in both Electron and non-Electron environments
 const databasePath = getDatabasePath()
 console.log('🔍 drizzle.config.ts : DATABASE PATH', databasePath)
 

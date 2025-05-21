@@ -1,13 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import logger from '../lib/logger'
 
 export const Route = createFileRoute('/_404')({
   component: NotFoundRoute,
 })
 
 function NotFoundRoute() {
-  logger.info('Rendering 404 route')
-  
   return (
     <div className="flex flex-col items-center justify-center p-4 text-white">
       <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>

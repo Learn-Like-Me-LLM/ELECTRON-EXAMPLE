@@ -36,6 +36,11 @@ export default defineConfig(({ command }) => {
       port: 5173,
       strictPort: true,
     },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src')
+      }
+    },
     plugins: [
       TanStackRouterVite({ 
         target: 'react', 
@@ -48,10 +53,12 @@ export default defineConfig(({ command }) => {
           // Main process entry point
           entry: 'electron/main/index.ts',
           onstart(args) {
-            if (process.env.VSCODE_DEBUG) {
-              console.log('[startup] Electron App')
+            if (process.env.RENDERER_ONLY_MODE === 'true') {
+              console.log('[startup] RENDERER_ONLY_MODE: Main process startup skipped.');
+            } else if (process.env.VSCODE_DEBUG) {
+              console.log('[startup] Electron App');
             } else {
-              args.startup()
+              args.startup();
             }
           },
           vite: {
@@ -61,6 +68,34 @@ export default defineConfig(({ command }) => {
               outDir: 'dist-electron/main',
               rollupOptions: {
                 external: Object.keys(pkg.dependencies || {})
+              },
+            },
+          },
+        },
+        {
+          // Utility process entry point
+          entry: 'electron/utility/utilityCounter.ts',
+          vite: {
+            build: {
+              sourcemap,
+              minify: isBuild,
+              outDir: 'dist-electron/main', // Output to the same directory as main.js
+              rollupOptions: {
+                external: Object.keys(pkg.dependencies || {}),
+              },
+            },
+          },
+        },
+        {
+          // Utility process entry point for RNG
+          entry: 'electron/utility/utilityRng.ts',
+          vite: {
+            build: {
+              sourcemap,
+              minify: isBuild,
+              outDir: 'dist-electron/main', // Output to the same directory as main.js
+              rollupOptions: {
+                external: Object.keys(pkg.dependencies || {}),
               },
             },
           },
@@ -85,11 +120,6 @@ export default defineConfig(({ command }) => {
         }
       ]),
     ],
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src')
-      }
-    },
     clearScreen: false,
   }
 })
