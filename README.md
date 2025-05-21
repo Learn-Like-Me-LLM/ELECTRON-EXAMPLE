@@ -1,39 +1,29 @@
 # Electron Example
 
-Simple `Electron` + `Vite` + `Tanstack Router` + `SQLite` + `Drizzle` boilerplate.
+Simple `Electron` + `Vite` + `Tanstack (Router & Query)` + `SQLite` + `Drizzle` boilerplate.
 
 > [!TIP]
 > 
-> this project is best managed through [makefile](./makefile) commands
+> this project is best managed through the defined [makefile](./makefile) commands
 
-## Local Development
+## [Local Development](./DOCS/local-development.md)
 
-1. `% make db-setup`
-2. `% make eb-rebuild`
-3. `% make dev`
+## [Build Production Assets](./DOCS/build-production-assets.md)
 
-```bash
-make db-setup && make eb-rebuild && make dev
-```
-
-## Build Production Assets
-
-> [!NOTE]
-> 
-> this project utilizes [electron-builder.yml](./electron-builder.yml)
-
-- `% make eb-build` / `% make eb-rebuild` 👉 `/release/<version>/...`
-
-## Database _(sqlite - better-sqlite3)_
+## Database _(SQLite : [better-sqlite3](https://github.com/WiseLibs/better-sqlite3))_
 
 > [!IMPORTANT]
 > 
-> The sqlite database is stored in the user's application data directory:  
-> - Windows: `%APPDATA%\electron_example\electron_example.db`
-> - macOS: `~/Library/Application Support/electron_example/electron_example.db`
-> - Linux: `~/.config/electron_example/electron_example.db`
+> The sqlite database is stored in the user's application data directory: 
+> 
+> production DB file: `electron_example.db`
+> development DB file: `electron_example.dev.db`
+> 
+> - Windows: `%APPDATA%\electron_example\<DB File Name>`
+> - macOS: `~/Library/Application Support/electron_example/<DB File Name>`
+> - Linux: `~/.config/electron_example/<DB File Name>`
 
-## Logs
+## Logs _([electron-log](https://github.com/megahertz/electron-log))_
 
 > [!NOTE]
 > 
@@ -43,6 +33,4 @@ make db-setup && make eb-rebuild && make dev
 > - Linux: `~/.config/electron_example/log/<YYYY-MM-DD>/<SESSION_ID>.log`
 >
 > Where `<YYYY-MM-DD>` is the date of the log (e.g., `2023-10-27`) and `<SESSION_ID>` is a unique ID for that application session.
-> The log file has a maximum size of 10MB.
 
-- `% make log-tail`
