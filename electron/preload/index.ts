@@ -1,6 +1,11 @@
+// This is a preload script. It runs in a privileged environment before the renderer process's web page is loaded.
+// It has access to Node.js APIs and can be used to selectively expose functionalities
+// to the renderer process via the `contextBridge` API, enhancing security by not exposing all of Node.js directly.
 import { ipcRenderer, contextBridge } from 'electron'
 
-// --------- Expose some API to the Renderer process ---------
+// Exposes a controlled subset of the `ipcRenderer` module to the renderer process.
+// This allows the renderer to send and receive messages to/from the main process
+// without having full access to the `ipcRenderer` object, which is a security best practice.
 contextBridge.exposeInMainWorld('ipcRenderer', {
   on(...args: Parameters<typeof ipcRenderer.on>) {
     const [channel, listener] = args
@@ -20,7 +25,9 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   },
 })
 
-// Add electronAPI for logger
+// Exposes a custom API `electronAPI` to the renderer process.
+// `sendLog` allows the renderer process to send log messages to the main process
+// to be handled by the main process's logger (e.g., `__ELECTRON_LOG__`).
 contextBridge.exposeInMainWorld('electronAPI', {
   sendLog: (level: string, data: any[]) => {
     ipcRenderer.send('__ELECTRON_LOG__', {
@@ -31,12 +38,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   }
 })
 
+// Exposes specific environment variables to the renderer process.
 contextBridge.exposeInMainWorld('env', {
   CUSTOM_ENV_VAR: process.env.CUSTOM_ENV_VAR,
   NODE_ENV: process.env.NODE_ENV,
 })
 
-// --------- Preload scripts loading ---------
+// A utility function that returns a Promise, resolving when the document's readyState
+// matches one of the specified conditions (defaulting to 'complete' or 'interactive').
+// This is useful for ensuring that DOM manipulations occur only after the DOM is ready.
 function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {
   return new Promise((resolve) => {
     if (condition.includes(document.readyState)) {
@@ -51,6 +61,9 @@ function domReady(condition: DocumentReadyState[] = ['complete', 'interactive'])
   })
 }
 
+// Provides utility functions for safely appending and removing DOM elements.
+// It checks if the child element already exists before performing the operation
+// to prevent duplicate appends or errors during removal.
 const safeDOM = {
   append(parent: HTMLElement, child: HTMLElement) {
     if (!Array.from(parent.children).find(e => e === child)) {
@@ -64,12 +77,9 @@ const safeDOM = {
   },
 }
 
-/**
- * https://tobiasahlin.com/spinkit
- * https://connoratherton.com/loaders
- * https://projects.lukehaas.me/css-loaders
- * https://matejkustec.github.io/SpinThatShit
- */
+// Creates and manages a loading spinner animation.
+// This is used to provide visual feedback to the user while the application is initializing.
+// The CSS for the spinner is defined within this function and injected into the document.
 function useLoading() {
   const className = `loaders-css__square-spin`
   const styleContent = `
@@ -119,8 +129,9 @@ function useLoading() {
   }
 }
 
-// ----------------------------------------------------------------------
-
+// Initializes the loading spinner: appends it when the DOM is ready.
+// It also sets up a mechanism to remove the loading spinner when a specific 'removeLoading' message
+// is received via `window.onmessage` or after a timeout (4999ms).
 const { appendLoading, removeLoading } = useLoading()
 domReady().then(appendLoading)
 

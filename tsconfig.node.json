@@ -1,3 +1,4 @@
+// TypeScript configuration for Node.js-specific parts of the project (e.g., Vite, TanStack Router configs).
 {
   "compilerOptions": {
     "composite": true,

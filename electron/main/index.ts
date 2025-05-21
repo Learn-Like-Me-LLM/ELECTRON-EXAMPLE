@@ -12,129 +12,101 @@ const logPrefix = `[MAIN PROCESS]`
 
 // CONFIGURE: environment variables ###########################################
 const isProd = app.isPackaged
+const envPath = isProd ? `.env.production` : `.env.development`
 
-// Get possible env file locations
-const getEnvPaths = () => {
-  if (isProd) {
-    const paths = []
-    // First try resources path
-    if (process.resourcesPath) {
-      paths.push(path.join(process.resourcesPath, '.env.production'))
-    }
-    // Then try app path
-    const appPath = path.dirname(app.getPath('exe'))
-    paths.push(path.join(appPath, '.env.production'))
-    return paths
-  }
-  // Development mode - just use local path
-  return [path.join(process.cwd(), '.env.development')]
-}
-
-const envPaths = getEnvPaths()
-
-// Try loading env file from each possible location
+// Attempts to load an environment file from the paths determined by getEnvPaths.
+// It stops at the first valid .env file found.
 let envLoaded = false
-for (const envPath of envPaths) {
+
+try {
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath })
     envLoaded = true
-    break
   }
-}
-
-if (!envLoaded) {
-  logger.error(`${logPrefix} No environment file found in any of these locations:`, envPaths)
-  // Instead of exiting, set some default values
-  process.env.NODE_ENV = isProd ? 'production' : 'development'
-  // You might want to set other critical env vars here
+} catch (err) {
+  logger.error(`${logPrefix} No environment file found at:`, envPath)
+  process.exit(1)
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// The built directory structure
-//
-// ├─┬ dist-electron
-// │ ├─┬ main
-// │ │ └── index.js    > Electron-Main
-// │ └─┬ preload
-// │   └── index.mjs   > Preload-Scripts
-// ├─┬ dist
-// │ └── index.html    > Electron-Renderer
-//
+// Sets up essential environment variables for paths used throughout the application.
+// APP_ROOT: The root directory of the application.
+// DIST: The directory containing the bundled front-end code for the renderer process.
+// VITE_PUBLIC: The directory for static public assets. In development, this points to 'public',
+//              and in production, it points to the 'dist' directory.
 process.env.APP_ROOT = path.join(__dirname, '../..')
 process.env.DIST = path.join(process.env.APP_ROOT, 'dist')
 process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
   ? path.join(process.env.APP_ROOT, 'public')
   : process.env.DIST
 
-// Disable GPU Acceleration for Windows 7
-if (os.release().startsWith('6.1')) app.disableHardwareAcceleration()
-
-// Set application name for Windows 10+ notifications
-if (process.platform === 'win32') app.setAppUserModelId(app.getName())
-
-if (!app.requestSingleInstanceLock()) {
-  app.quit()
-  process.exit(0)
-}
 
 let win: BrowserWindow | null = null
 
-// DEFINE: preload
+// Defines the path to the preload script.
+// The preload script runs in a privileged environment and can bridge the gap
+// between the sandboxed renderer process and the Node.js environment of the main process.
 const preloadPath = path.join(__dirname, '../preload/index.js')
 
+// Creates the main application window.
 async function createWindow() {
   win = new BrowserWindow({
     title: 'Main window',
     icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
     webPreferences: {
+      // Specifies the preload script to be loaded before other scripts in the renderer process.
       preload: preloadPath,
-      nodeIntegration: true,
+      // Enables Node.js integration in the renderer process.
+      // IMPORTANT: This should be used with caution, especially if loading remote content,
+      // as it can pose security risks. just disabling it.
+      nodeIntegration: false,
+      // Enables context isolation, which creates a separate JavaScript context for the preload script.
+      // This is a security measure that helps prevent the preload script from leaking privileged APIs
+      // to the renderer process's untrusted web content. It is highly recommended to keep this true.
       contextIsolation: true,
     },
   })
 
+  // Opens the Developer Tools in development mode for easier debugging.
   if (process.env.NODE_ENV !== 'production') {
     win.webContents.openDevTools()
   }
 
-  // Test actively push message to the Electron-Renderer
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString())
-  })
-
-  // Make all links open with the browser, not with the application
+  // Configures how new windows are opened.
+  // This handler ensures that external links (starting with "https:")
+  // are opened in the system's default web browser instead of a new Electron window.
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:')) shell.openExternal(url)
     return { action: 'deny' }
   })
 
-  // Debug renderer errors
+  // Handles the event where the renderer process crashes.
+  // Logs the error for debugging purposes.
   win.webContents.on('render-process-gone', (event, details) => {
     logger.error(`${logPrefix} Renderer process crashed:`, details)
   })
 
+  // Handles the event where the window fails to load content.
+  // Logs the error for debugging purposes.
   win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
     logger.error(`${logPrefix} Failed to load:`, { errorCode, errorDescription })
   })
 
+  // Loads the content for the window.
+  // If a Vite development server URL is available (development mode), it loads that URL.
+  // Otherwise (production mode), it attempts to load the local index.html file from the 'dist' directory.
   if (process.env.VITE_DEV_SERVER_URL) {
     win.loadURL(process.env.VITE_DEV_SERVER_URL)
-    win.webContents.openDevTools()
   } else {
-    // Check if the index.html file exists
+    // Checks if the main HTML file (index.html) exists in the expected production build directory.
     const indexPath = path.join(process.env.DIST, 'index.html')
     
     if (fs.existsSync(indexPath)) {      
       win.loadFile(indexPath)
-      
-      // Open DevTools in production for debugging
-      if (process.env.NODE_ENV === 'production') {
-        win.webContents.openDevTools()
-      }
     } else {
       logger.error(`${logPrefix} Index file not found at: ${indexPath}. This is the expected location for the production build.`)
-      // Create a simple error page
+      // If index.html is not found, display a user-friendly error page.
       const errorHtml = `
         <html>
           <body style="background: #f44336; color: white; font-family: sans-serif; padding: 20px; text-align: center;">
@@ -151,16 +123,19 @@ async function createWindow() {
   }
 }
 
+// This block executes when the Electron application is ready.
+// It's the primary place to initialize application components like the database and create the main window.
 app.whenReady().then(async () => {
   logger.info('🎉🎉 App is ready')
   
   try {
-    // INITIALIZE: database
+    // Initializes the database. This could involve setting up connections,
+    // running migrations, or other database-related tasks.
     logger.info('🔎🔎 Initializing database...')
     await dbInit()
     logger.info('🎉🎉 Database initialized successfully')
     
-    // CREATE: window
+    // Creates the main application window after the database is initialized.
     await createWindow()  
   } catch (error) {
     logger.error('🚨🚨 Failed to initialize application:', error)
@@ -168,23 +143,9 @@ app.whenReady().then(async () => {
   }
 })
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow()
-})
-
-app.on('window-all-closed', () => {
-  win = null
-  if (process.platform !== 'darwin') app.quit()
-})
-
-app.on('second-instance', () => {
-  if (win) {
-    // Focus on the main window if the user tried to open another
-    if (win.isMinimized()) win.restore()
-    win.focus()
-  }
-})
-
+// Handles the 'activate' event, which is typically triggered when the application's
+// icon is clicked in the dock (macOS) and there are no windows open.
+// It creates a new window if none exist.
 app.on('activate', () => {
   const allWindows = BrowserWindow.getAllWindows()
   if (allWindows.length) {
@@ -194,12 +155,35 @@ app.on('activate', () => {
   }
 })
 
-// New window example arg: new windows url
+// Handles the 'window-all-closed' event, which is triggered when all application windows are closed.
+// It quits the application, except on macOS where applications typically stay active
+// even without open windows.
+app.on('window-all-closed', () => {
+  win = null
+  if (process.platform !== 'darwin') app.quit()
+})
+
+// Handles the 'second-instance' event, which is triggered when a user tries to open
+// a second instance of the application while one is already running.
+// It focuses the existing main window instead of creating a new one.
+app.on('second-instance', () => {
+  if (win) {
+    // Focus on the main window if the user tried to open another
+    if (win.isMinimized()) win.restore()
+    win.focus()
+  }
+})
+
+// Sets up an IPC (Inter-Process Communication) handler for the 'open-win' channel.
+// This allows the renderer process to request the main process to open a new window.
+// The 'arg' parameter can be used to pass data (e.g., a URL or route) to the new window.
 ipcMain.handle('open-win', (_, arg) => {
   const childWindow = new BrowserWindow({
     webPreferences: {
-      preload: preloadPath,
-      nodeIntegration: true,
+      // Enabling Node.js integration and disabling context isolation for child windows
+      // carries the same security considerations as for the main window.
+      // Evaluate if these are strictly necessary for the child window's functionality.
+      nodeIntegration: false,
       contextIsolation: true,
     },
   })
