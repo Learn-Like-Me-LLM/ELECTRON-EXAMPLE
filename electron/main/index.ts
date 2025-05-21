@@ -94,6 +94,10 @@ async function createWindow() {
     },
   })
 
+  if (process.env.NODE_ENV !== 'production') {
+    win.webContents.openDevTools()
+  }
+
   // Test actively push message to the Electron-Renderer
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', new Date().toLocaleString())
