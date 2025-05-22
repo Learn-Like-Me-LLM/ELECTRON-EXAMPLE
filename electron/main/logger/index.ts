@@ -10,6 +10,15 @@ log.initialize();
 
 try {
   if (app) {
+    if (app.isPackaged) {
+      // PRODUCTION: logging
+      log.transports.console.level = 'warn'; 
+      log.transports.file.level = 'info';
+    } else {
+      // DEVELOPMENT: logging
+      log.transports.console.level = 'info';
+      log.transports.file.level = 'info';
+    }
     
     log.transports.file.resolvePathFn = (variables: any, message: any) => {
       const now = moment().utc()
