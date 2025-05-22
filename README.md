@@ -23,16 +23,11 @@ Simple `Electron` + `Vite` + `Tanstack (Router & Query)` + `SQLite` + `Drizzle` 
 > - macOS: `~/Library/Application Support/electron_example/<DB File Name>`
 > - Linux: `~/.config/electron_example/<DB File Name>`
 
-## Logs _([electron-log](https://github.com/megahertz/electron-log))_
+## [Logging](./DOCS/logging.md) 
 
-> [!NOTE]
-> 
-> The application logs are stored in the application data directory:
-> - Windows: `%APPDATA%\electron_example\log\<YYYY-MM-DD>\<SESSION_ID>.log`
-> - macOS: `~/Library/Application Support/electron_example/log/<YYYY-MM-DD>/<SESSION_ID>.log`
-> - Linux: `~/.config/electron_example/log/<YYYY-MM-DD>/<SESSION_ID>.log`
->
-> Where `<YYYY-MM-DD>` is the date of the log (e.g., `2023-10-27`) and `<SESSION_ID>` is a unique ID for that application session.
+## [Debugging](./DOCS/debugging.md)
+
+...tbd...
 
 # Examples
 

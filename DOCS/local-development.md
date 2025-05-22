@@ -7,3 +7,7 @@
 ```bash
 make db-setup && make eb-rebuild && make dev
 ```
+
+> [!IMPORTANT]
+> 
+> Kit and Caboodle command: `make kac`
