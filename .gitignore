@@ -13,4 +13,5 @@
 .DS_Store
 
 **/.opencode
-**/.vscode
+.vscode/*
+!.vscode/launch.json

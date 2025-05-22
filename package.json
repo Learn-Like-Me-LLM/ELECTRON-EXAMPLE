@@ -10,8 +10,10 @@
     "db:setup": "npm run drizzle:generateSchema && npm run drizzle:rebuild && npm run drizzle:runMigrations",
     "tanstackrouter:generate:routes": "npx @tanstack/router-cli ./src/routes -y",
     "dev": "vite",
-    "electron:dev": "update this -- vite must be running & issues looking @ build recoursed",
+    "dev:renderer": "cross-env RENDERER_ONLY_MODE=true vite",
+    "debug": "concurrently --kill-others-on-fail \"npm run dev:renderer\" \"wait-on -t 120000 http://localhost:5173 && echo 'Vite dev server is ready on http://localhost:5173. You can now launch Debug MAIN PROCESS in VSCode.'\"",
     "build:main": "cross-env ELECTRON_MAIN=1 NODE_ENV=production vite build",
+    "build:main:debug": "cross-env ELECTRON_MAIN=1 VSCODE_DEBUG=true NODE_ENV=development vite build -c vite.debug.config.ts",
     "build:renderer": "cross-env NODE_ENV=production vite build",
     "electron:build": "npm run build:renderer && npm run build:main && electron-builder --mac",
     "electron:rebuild": "rm -rf dist dist-electron release && cross-env NODE_ENV=production npm run electron:build"
@@ -24,8 +26,11 @@
     "classnames": "^2.5.1",
     "concurrently": "^9.1.2",
     "drizzle-orm": "^0.43.1",
+    "moment": "^2.30.1",
+    "path-browserify": "^1.0.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "short-uuid": "^4.2.0"
   },
   "devDependencies": {
     "@tanstack/react-query-devtools": "^5.76.0",

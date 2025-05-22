@@ -11,16 +11,16 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as SettingsImport } from './routes/settings'
+import { Route as UtilityProcessesImport } from './routes/utility-processes'
 import { Route as FallbackImport } from './routes/fallback'
 import { Route as R404Import } from './routes/_404'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
 
-const SettingsRoute = SettingsImport.update({
-  id: '/settings',
-  path: '/settings',
+const UtilityProcessesRoute = UtilityProcessesImport.update({
+  id: '/utility-processes',
+  path: '/utility-processes',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -66,11 +66,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FallbackImport
       parentRoute: typeof rootRoute
     }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsImport
+    '/utility-processes': {
+      id: '/utility-processes'
+      path: '/utility-processes'
+      fullPath: '/utility-processes'
+      preLoaderRoute: typeof UtilityProcessesImport
       parentRoute: typeof rootRoute
     }
   }
@@ -82,14 +82,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof R404Route
   '/fallback': typeof FallbackRoute
-  '/settings': typeof SettingsRoute
+  '/utility-processes': typeof UtilityProcessesRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof R404Route
   '/fallback': typeof FallbackRoute
-  '/settings': typeof SettingsRoute
+  '/utility-processes': typeof UtilityProcessesRoute
 }
 
 export interface FileRoutesById {
@@ -97,15 +97,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_404': typeof R404Route
   '/fallback': typeof FallbackRoute
-  '/settings': typeof SettingsRoute
+  '/utility-processes': typeof UtilityProcessesRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/fallback' | '/settings'
+  fullPaths: '/' | '' | '/fallback' | '/utility-processes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/fallback' | '/settings'
-  id: '__root__' | '/' | '/_404' | '/fallback' | '/settings'
+  to: '/' | '' | '/fallback' | '/utility-processes'
+  id: '__root__' | '/' | '/_404' | '/fallback' | '/utility-processes'
   fileRoutesById: FileRoutesById
 }
 
@@ -113,14 +113,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   R404Route: typeof R404Route
   FallbackRoute: typeof FallbackRoute
-  SettingsRoute: typeof SettingsRoute
+  UtilityProcessesRoute: typeof UtilityProcessesRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   R404Route: R404Route,
   FallbackRoute: FallbackRoute,
-  SettingsRoute: SettingsRoute,
+  UtilityProcessesRoute: UtilityProcessesRoute,
 }
 
 export const routeTree = rootRoute
@@ -136,7 +136,7 @@ export const routeTree = rootRoute
         "/",
         "/_404",
         "/fallback",
-        "/settings"
+        "/utility-processes"
       ]
     },
     "/": {
@@ -148,8 +148,8 @@ export const routeTree = rootRoute
     "/fallback": {
       "filePath": "fallback.tsx"
     },
-    "/settings": {
-      "filePath": "settings.tsx"
+    "/utility-processes": {
+      "filePath": "utility-processes.tsx"
     }
   }
 }

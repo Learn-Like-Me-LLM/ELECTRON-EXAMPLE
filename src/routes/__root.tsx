@@ -4,15 +4,12 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { queryClient } from '../lib/queryClient'
-import logger from '../lib/logger'
 
 export const Route = createRootRoute({
   component: Root,
 })
 
 export function Root() {
-  logger.info('Rendering Root component')
-  
   return (
     <QueryClientProvider client={queryClient}>
       <div className={cx(
