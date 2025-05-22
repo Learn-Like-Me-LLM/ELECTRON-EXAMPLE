@@ -1,13 +1,20 @@
 # Consolidated logging with `electron-log`
 
-The application utilizes `electron-log` (version 5+) to establish a specific, consolidated logging system. This system ensures that logs from the `MAIN PROCESS`, `RENDER PROCESS(es)`, and `UTILITY PROCESS(es)` are captured, organized, displayed, and stored effectively, leveraging `electron-log`'s modern architecture.
+The application utilizes `electron-log` (version 5+) to establish a specific, consolidated logging system. This system ensures that logs from the `MAIN PROCESS`, `RENDER PROCESS(es)`, and `UTILITY PROCESS(es)` are captured, organized, displayed, and stored effectively.
 
 The logging system is designed to:
 
-1.  **Centralize Renderer Logs via IPC:** Following `electron-log` v5+ best practices, logs from all `RENDER PROCESS(es)` are transmitted via Inter-Process Communication (IPC) to the `MAIN PROCESS`. The `MAIN PROCESS` then manages all configurations, formatting, and file path resolution for writing these logs, typically to `.../renderer.log`. This centralized approach aligns with Electron's process model and security considerations.
-2.  **Independent Utility Logs:** `UTILITY PROCESS(es)`, which run as separate Node.js contexts, use `electron-log/main` to log directly to their own files. This maintains separation while ensuring their logs are part of the overall session's log collection.
-3.  **Consistent Formatting:** A standard log message format is applied across all processes and log outputs (console and file).
-4.  **Structured Log Storage:** Logs are stored in a predictable directory structure.
+1.  **Centralize Renderer Logs via IPC:**  
+Logs from all `RENDER PROCESS(es)` are transmitted via `Inter-Process Communication (IPC)` to the `MAIN PROCESS`. The `MAIN PROCESS` then manages all configurations, formatting, and file path resolution for writing these logs, typically to `.../renderer.log`.
+
+2.  **Independent Utility Logs:** 
+`UTILITY PROCESS(es)`, which run as separate Node.js contexts and use their own instance to `electron-log/main` to log directly to their own files. This maintains separation while ensuring their logs are part of the overall session's log collection.
+
+3.  **Consistent Formatting:**  
+A standard log message format is applied across all processes and log outputs (console and file).
+
+4.  **Structured Log Storage:**  
+Logs are stored in a predictable directory structure.
 
 ## Log Storage Structure
 

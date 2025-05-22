@@ -10,30 +10,15 @@ log.initialize();
 
 try {
   if (app) {
-    const now = moment().utc()
-    const year = now.year().toString()
-    const month = (now.month() + 1).toString().padStart(2, '0')
-    const day = now.date().toString().padStart(2, '0')
-
+    
     log.transports.file.resolvePathFn = (variables: any, message: any) => {
-      // Simplified logging for clarity
-      console.log(
-        `🔎 main/logger/index.ts resolvePathFn: processType='${message?.variables?.processType}', scope='${message?.variables?.scope}', defaultPath='${variables.defaultPath}'`
-      );
+      const now = moment().utc()
+      const year = now.year().toString()
+      const month = (now.month() + 1).toString().padStart(2, '0')
+      const day = now.date().toString().padStart(2, '0')
 
       const datePath = `${year}-${month}-${day}`;
       const fileName = `${message?.variables?.processType || 'unknown'}.log`;
-
-      if (message?.variables?.processType === 'utility') {
-        return path.join(
-          variables.userData,
-          'logs',
-          datePath,
-          SESSION_ID,
-          message?.variables?.scope || 'unknown-utility',
-          fileName
-        );
-      } 
 
       return path.join(
         variables.userData,
