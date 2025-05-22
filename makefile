@@ -56,13 +56,3 @@ eb-rebuild:
 	@echo "🔎🔎 Rebuilding Electron app"
 	npm run electron:rebuild
 
-# DEBUGGING ###################################################################
-log-tail:
-	@echo "🔎🔎 Viewing logs"
-	tail -n 150 ~/Library/Application\ Support/electron_example/log/main.log
-
-log-truncate:
-	@echo "🧹 Truncating log file"
-	> ~/Library/Application\ Support/electron_example/log/main.log
-	@echo "✅ Log file has been truncated"
-
