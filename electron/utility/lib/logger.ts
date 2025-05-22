@@ -4,7 +4,8 @@ import path from 'path'
 import { electronLogMessageFormat } from '../utils/constants'
 
 log.transports.file.resolvePathFn = (variables: any, message: any) => {
-  const SESSION_ID = process.env.SESSION_ID || 'unknown-session' 
+  const IS_PACKAGED: string = process.env.IS_PACKAGED || 'false'
+  const SESSION_ID: string = process.env.SESSION_ID || 'unknown-session' 
   
   // Use UTILITY_PROCESS_ID from env for the utility process ID directory
   // This ID is generated in the main process (e.g., UTILITY_COUNTER_uuid) and passed as an env var.
@@ -21,6 +22,7 @@ log.transports.file.resolvePathFn = (variables: any, message: any) => {
   return path.join(
     variables.userData,
     'logs',
+    IS_PACKAGED === 'true' ? 'prod' : 'dev',
     datePath,
     SESSION_ID,
     message.scope || 'undefined-utility-scope',

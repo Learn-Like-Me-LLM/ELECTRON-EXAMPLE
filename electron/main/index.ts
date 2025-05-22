@@ -220,8 +220,9 @@ function launchCounterUtilityProcess() {
     execArgv: execArguments,
     env: {
       ...process.env,
-      SESSION_ID: SESSION_ID,
-      UTILITY_PROCESS_ID: short.generate()
+      IS_PACKAGED: String(app.isPackaged),
+      SESSION_ID: String(SESSION_ID),
+      UTILITY_PROCESS_ID: String(short.generate())
     }
   })
 
@@ -287,8 +288,9 @@ function launchRngUtilityProcess() {
     execArgv: execArguments,
     env: {
       ...process.env,
-      SESSION_ID: SESSION_ID,
-      UTILITY_PROCESS_ID: short.generate()
+      IS_PACKAGED: String(app.isPackaged),
+      SESSION_ID: String(SESSION_ID),
+      UTILITY_PROCESS_ID: String(short.generate())
     }
   })
 

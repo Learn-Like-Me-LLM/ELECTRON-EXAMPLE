@@ -32,6 +32,7 @@ try {
       return path.join(
         variables.userData,
         'logs',
+        app.isPackaged ? 'prod' : 'dev',
         datePath,
         SESSION_ID,
         fileName
