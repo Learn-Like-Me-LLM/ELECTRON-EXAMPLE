@@ -1,5 +1,6 @@
-# electron-builder.yml - Configuration file for building and packaging Electron applications
+# Configures electron-builder for packaging the Electron application
 # Main documentation: https://www.electron.build/configuration.html
+###############################################################################
 
 # Basic Application Information ###############################################
 # appId: Unique identifier for your app, typically in reverse domain notation

@@ -1,3 +1,4 @@
+// TypeScript configuration for Electron main and preload processes.
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {

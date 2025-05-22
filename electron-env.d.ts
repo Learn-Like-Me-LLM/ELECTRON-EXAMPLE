@@ -49,9 +49,6 @@ interface Window {
     send: (channel: string, ...args: any[]) => void
     invoke: (channel: string, ...args: any[]) => Promise<any>
   }
-  electronAPI: {
-    sendLog: (level: string, data: any[]) => void
-  }
   env: {
     CUSTOM_ENV_VAR: string
     NODE_ENV: string

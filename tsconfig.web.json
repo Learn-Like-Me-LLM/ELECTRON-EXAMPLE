@@ -1,3 +1,4 @@
+// TypeScript configuration for the web/renderer process.
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
