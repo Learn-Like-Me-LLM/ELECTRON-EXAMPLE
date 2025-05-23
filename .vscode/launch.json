@@ -34,16 +34,34 @@
       "outputCapture": "std"
     },
     {
+      // Display name for this configuration in VS Code's debug dropdown
       "name": "DEBUG COUNTER UTILITY PROCESS",
+      
+      // Debugger type - "pwa-node" for Node.js debugging with new debugger protocol
       "type": "pwa-node",
+      
+      // Debug mode - "attach" connects to an existing running process
       "request": "attach",
+      
+      // Working directory for the debug session (project root folder)
       "cwd": "${workspaceFolder}",
+      
+      // Path to the executable (Electron binary in node_modules)
       "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      
+      // Windows-specific override for the executable path (adds .cmd extension)
       "windows": {
         "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
       },
+      
+      // Port number to attach the debugger to the utility process
       "port": 9230,
+      
+      // Enable source map support for debugging TypeScript/compiled code
       "sourceMaps": true,
+      
+      // File patterns for compiled output files to enable debugging
+      // Includes the main utility counter file and other compiled files
       "outFiles": [
         "${workspaceFolder}/dist-electron/main/utilityCounter.js",
         "${workspaceFolder}/dist-electron/main/**/*.js",
