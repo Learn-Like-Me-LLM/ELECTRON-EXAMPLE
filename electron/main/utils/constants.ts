@@ -11,7 +11,7 @@ export const electronLogMessageFormat = '{h}:{i}:{s} [{processType}{scope}] [{le
 export function getDbName() {
   try {
     // V2
-    return electronApp.isPackaged ? 'electron_example.db' : 'electron_example.dev.db'
+    return electronApp?.isPackaged ? 'electron_example.db' : 'electron_example.dev.db'
 
     // V1
     // if (!electronApp) {
