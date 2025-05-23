@@ -13,7 +13,7 @@ import short from 'short-uuid'
 const mainLogger = log.scope('main/index.ts')
 
 // CONFIGURE: environment variables ###########################################
-const isProd = app.isPackaged
+const isProd = app?.isPackaged
 const envPath = isProd ? `.env.production` : `.env.development`
 
 // Attempts to load an environment file from the paths determined by getEnvPaths.
@@ -220,6 +220,7 @@ function launchCounterUtilityProcess() {
     execArgv: execArguments,
     env: {
       ...process.env,
+      IS_PACKAGED: app?.isPackaged ? 'true' : 'false',
       SESSION_ID: SESSION_ID,
       UTILITY_PROCESS_ID: short.generate()
     }
@@ -287,6 +288,7 @@ function launchRngUtilityProcess() {
     execArgv: execArguments,
     env: {
       ...process.env,
+      IS_PACKAGED: app?.isPackaged ? 'true' : 'false',
       SESSION_ID: SESSION_ID,
       UTILITY_PROCESS_ID: short.generate()
     }

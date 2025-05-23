@@ -10,7 +10,7 @@ log.initialize();
 
 try {
   if (app) {
-    if (app.isPackaged) {
+    if (app?.isPackaged) {
       // PRODUCTION: logging
       log.transports.console.level = 'warn'; 
       log.transports.file.level = 'info';
@@ -32,6 +32,7 @@ try {
       return path.join(
         variables.userData,
         'logs',
+        app?.isPackaged ? 'prod' : 'dev',
         datePath,
         SESSION_ID,
         fileName

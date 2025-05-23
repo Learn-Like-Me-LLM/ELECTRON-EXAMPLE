@@ -4,7 +4,7 @@ import path from 'node:path'
 import pkg from './package.json'
 
 // Vite config for building Electron files for debugging purposes ONLY.
-// This is intended to be used by `npm run build:main:debug` which is a preLaunchTask in VS Code.
+// This is intended to be used by `npm run debug:build:main` which is a preLaunchTask in VS Code.
 export default defineConfig(() => {
   const sourcemap = true; // Always true for debug builds
   const minify = false;   // Never minify for debug builds
