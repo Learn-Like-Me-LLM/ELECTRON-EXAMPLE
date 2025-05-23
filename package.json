@@ -12,9 +12,9 @@
     "dev": "vite",
     "dev:renderer": "cross-env RENDERER_ONLY_MODE=true vite",
     "debug": "concurrently --kill-others-on-fail \"npm run dev:renderer\" \"wait-on -t 120000 http://localhost:5173 && echo 'Vite dev server is ready on http://localhost:5173. You can now launch Debug MAIN PROCESS in VSCode.'\"",
-    "build:main": "cross-env ELECTRON_MAIN=1 NODE_ENV=production vite build",
-    "build:main:debug": "cross-env ELECTRON_MAIN=1 VSCODE_DEBUG=true NODE_ENV=development vite build -c vite.debug.config.ts",
-    "build:renderer": "cross-env NODE_ENV=production vite build",
+    "debug:build:main": "cross-env ELECTRON_MAIN=1 VSCODE_DEBUG=true NODE_ENV=development vite build -c vite.debug.config.ts",
+    "build:main": "cross-env ELECTRON_MAIN=1 NODE_ENV=production vite build -c vite.config.ts",
+    "build:renderer": "cross-env NODE_ENV=production vite build -c vite.config.ts",
     "electron:build": "npm run build:renderer && npm run build:main && electron-builder --mac",
     "electron:rebuild": "rm -rf dist dist-electron release && cross-env NODE_ENV=production npm run electron:build"
   },
