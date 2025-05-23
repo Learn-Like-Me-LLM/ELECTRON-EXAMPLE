@@ -1,9 +1,5 @@
 # Consolidated logging with `electron-log`
 
-The application utilizes `electron-log` (version 5+) to establish a specific, consolidated logging system. This system ensures that logs from the `MAIN PROCESS`, `RENDER PROCESS(es)`, and `UTILITY PROCESS(es)` are captured, organized, displayed, and stored effectively.
-
-The logging system is designed to:
-
 1.  **Centralize Renderer Logs via IPC:**  
 Logs from all `RENDER PROCESS(es)` are transmitted via `Inter-Process Communication (IPC)` to the `MAIN PROCESS`. The `MAIN PROCESS` then manages all configurations, formatting, and file path resolution for writing these logs, typically to `.../renderer.log`.
 
